@@ -24,9 +24,9 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # If not specified user agent data will be stored in the root of the event.
   config :target, :validate => :string
 
-  # regexes.yaml file to use
+  # `regexes.yaml` file to use
   #
-  # If not specified, this will default to the regexes.yaml that ships
+  # If not specified, this will default to the `regexes.yaml` that ships
   # with logstash.
   #
   # You can find the latest version of this here:
