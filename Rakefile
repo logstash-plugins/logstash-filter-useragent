@@ -1,4 +1,4 @@
-@files=[{'url' => 'https://raw.githubusercontent.com/tobie/ua-parser/master/regexes.yaml', 'sha1' => '3f7c9055432a613ac38287544d5e0e3fa7b648f2'}]
+@files=[{'url' => 'https://raw.githubusercontent.com/tobie/ua-parser/master/regexes.yaml', 'sha1' => '0b5e6f5ce44e389106d0343e54afc5f62767867c'}]
 
 task :default do
   system("rake -T")
