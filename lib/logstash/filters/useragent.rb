@@ -73,6 +73,8 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       if @target.nil?
         # default write to the root of the event
         target = event
+      elsif @target == @source
+        target = event[@source] = {}
       else
         target = event[@target] ||= {}
       end
