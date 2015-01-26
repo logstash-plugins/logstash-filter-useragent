@@ -92,7 +92,14 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     return unless ua_data
 
-    target = @target.nil? ? event : (event[@target] ||= {})
+    if @target.nil?
+      target = event
+    elsif @target == @source
+      target = event[@source] = {}
+    else
+      target = event[@target] ||= {}
+    end
+
     write_to_target(target, ua_data)
 
     filter_matched(event)
