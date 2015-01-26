@@ -87,4 +87,23 @@ describe LogStash::Filters::UserAgent do
       end
     end
   end
+
+  describe "Replace source with target" do
+    config <<-CONFIG
+      filter {
+        useragent {
+          source => "message"
+          target => "message"
+        }
+      }
+    CONFIG
+
+    sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
+      insist { subject }.include?("message")
+      insist { subject["message"]["name"] } == "Chrome"
+      insist { subject["message"]["os"] } == "Linux"
+      insist { subject["message"]["major"] } == "26"
+      insist { subject["message"]["minor"] } == "0"
+    end
+  end
 end
