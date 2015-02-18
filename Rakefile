@@ -1,4 +1,7 @@
-@files=[{'url' => 'https://raw.githubusercontent.com/tobie/ua-parser/master/regexes.yaml', 'sha1' => '0b5e6f5ce44e389106d0343e54afc5f62767867c'}]
+require 'json'
+
+BASE_PATH = File.expand_path(File.dirname(__FILE__))
+@files = JSON.parse(File.read(File.join(BASE_PATH, 'vendor.json')))
 
 task :default do
   system("rake -T")
