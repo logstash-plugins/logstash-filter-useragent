@@ -80,6 +80,11 @@ describe LogStash::Filters::UserAgent do
       insist { subject }.include?("ua")
       insist { subject["ua"]["os_simple_name"] } == "Symbian"
     end
+
+    sample "Mozilla/5.0 (X11; U; Linux i686; en-GB; rv:1.7.6) Gecko/20050405 Epiphany/1.6.1 (Ubuntu) (Ubuntu package 1.0.2)" do
+      insist { subject }.include?("ua")
+      insist { subject["ua"]["os_simple_name"] } == "Linux"
+    end
   end
 
 end

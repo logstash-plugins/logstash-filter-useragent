@@ -107,6 +107,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
           break
         end
       end
+      target[@prefix + "os_simple_name"] = "Linux" if ["Ubuntu", "Kubuntu", "Arch Linux", "CentOS", "Slackware", "Gentoo", "openSUSE", "SUSE", "Red Hat", "Fedora", "PCLinuxOS", "Gentoo", "Mageia", "BackTrack", "Lubuntu", "Puppy"].include? target[@prefix + "os_name"]
 
       filter_matched(event)
     end
