@@ -99,6 +99,15 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
         target[@prefix + "build"] = ua_version.patch_minor.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
       end
 
+
+      target[@prefix + "os_simple_name"] = target[@prefix + "os_name"]
+      for start in ["iOS", "Mac OS X", "Android", "Windows Phone", "Windows", "BlackBerry", "Symbian"]
+        if target[@prefix + "os_name"].start_with? start
+          target[@prefix + "os_simple_name"] = start
+          break
+        end
+      end
+
       filter_matched(event)
     end
 
