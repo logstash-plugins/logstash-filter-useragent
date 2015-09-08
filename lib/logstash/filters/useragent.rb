@@ -99,21 +99,29 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       target[@prefix + "name"] = ua_data.name.force_encoding(Encoding::UTF_8)
 
       #OSX, Andriod and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
-      unless ua_data.os.nil?
-        target[@prefix + "os"] = ua_data.os.to_s.force_encoding(Encoding::UTF_8)
-        target[@prefix + "os_name"] = ua_data.os.name.to_s.force_encoding(Encoding::UTF_8)
-        target[@prefix + "os_major"] = ua_data.os.version.major.to_s.force_encoding(Encoding::UTF_8) unless ua_data.os.version.nil?
-        target[@prefix + "os_minor"] = ua_data.os.version.minor.to_s.force_encoding(Encoding::UTF_8) unless ua_data.os.version.nil?
+
+      # Calls in here use #dup because there's potential for later filters to modify these values
+      # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
+      if ua_data.os
+        # The OS is a rich object
+        target[@prefix + "os"] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
+
+        # These are all strings
+        if (os = ua_data.os) && (os_version = os.version)
+          target[@prefix + "os_name"] = ua_data.os.name.dup.force_encoding(Encoding::UTF_8) if os.name
+          target[@prefix + "os_major"] = ua_data.os.version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
+          target[@prefix + "os_minor"] = ua_data.os.version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
+        end
       end
 
-      target[@prefix + "device"] = ua_data.device.to_s.force_encoding(Encoding::UTF_8) if not ua_data.device.nil?
+      target[@prefix + "device"] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if not ua_data.device.nil?
 
-      if not ua_data.version.nil?
+      if ua_data.version
         ua_version = ua_data.version
-        target[@prefix + "major"] = ua_version.major.force_encoding(Encoding::UTF_8) if ua_version.major
-        target[@prefix + "minor"] = ua_version.minor.force_encoding(Encoding::UTF_8) if ua_version.minor
-        target[@prefix + "patch"] = ua_version.patch.force_encoding(Encoding::UTF_8) if ua_version.patch
-        target[@prefix + "build"] = ua_version.patch_minor.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
+        target[@prefix + "major"] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
+        target[@prefix + "minor"] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
+        target[@prefix + "patch"] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
+        target[@prefix + "build"] = ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
       end
 
       filter_matched(event)
