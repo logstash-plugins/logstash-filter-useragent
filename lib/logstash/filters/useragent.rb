@@ -1,6 +1,7 @@
 # encoding: utf-8
 require "logstash/filters/base"
 require "logstash/namespace"
+require "lru_redux"
 require "tempfile"
 
 # Parse user agent strings into structured data based on BrowserScope data
@@ -12,6 +13,8 @@ require "tempfile"
 # ua-parser with an Apache 2.0 license. For more details on ua-parser, see
 # <https://github.com/tobie/ua-parser/>.
 class LogStash::Filters::UserAgent < LogStash::Filters::Base
+  LOOKUP_CACHE = LruRedux::ThreadSafeCache.new(1000)
+
   config_name "useragent"
 
   # The field containing the user agent string. If this field is an
@@ -35,6 +38,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # A string to prepend to all of the extracted keys
   config :prefix, :validate => :string, :default => ''
 
+  # UA parsing is surprisingly expensive. This filter uses an LRU cache to take advantage of the fact that
+  # user agents are often found adjacent to one another in log files and rarely have a random distribution.
+  # The higher you set this the more likely an item is to be in the cache and the faster this filter will run.
+  # However, if you set this too high you can use more memory than desired
+  config :lru_cache_size, :validate => :number, :default => 1000
+
   public
   def register
     require 'user_agent_parser'
@@ -53,6 +62,8 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       @logger.info("Using user agent regexes", :regexes => @regexes)
       @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
     end
+
+    LOOKUP_CACHE.max_size = @lru_cache_size
   end #def register
 
   public
@@ -64,7 +75,13 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     useragent = useragent.first if useragent.is_a? Array
 
     begin
-      ua_data = @parser.parse(useragent)
+      if (cached = LOOKUP_CACHE[useragent])
+        ua_data = cached
+      else
+        ua_data = @parser.parse(useragent)
+        LOOKUP_CACHE[useragent] = ua_data
+      end
+
     rescue Exception => e
       @logger.error("Uknown error while parsing user agent data", :exception => e, :field => @source, :event => event)
     end
