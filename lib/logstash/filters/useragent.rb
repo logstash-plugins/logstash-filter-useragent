@@ -41,7 +41,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # UA parsing is surprisingly expensive. This filter uses an LRU cache to take advantage of the fact that
   # user agents are often found adjacent to one another in log files and rarely have a random distribution.
   # The higher you set this the more likely an item is to be in the cache and the faster this filter will run.
-  # However, if you set this too high you can use more memory than desired
+  # However, if you set this too high you can use more memory than desired.
+  #
+  # Experiment with different values for this option to find the best performance for your dataset.
+  #
+  # This MUST be set to a value > 0. There is really no reason to not want this behavior, the overhead is minimal
+  # and the speed gains are huge.
   config :lru_cache_size, :validate => :number, :default => 1000
 
   public
