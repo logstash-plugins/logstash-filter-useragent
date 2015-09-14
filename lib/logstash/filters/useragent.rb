@@ -46,7 +46,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # Experiment with different values for this option to find the best performance for your dataset.
   #
   # This MUST be set to a value > 0. There is really no reason to not want this behavior, the overhead is minimal
-  # and the speed gains are huge.
+  # and the speed gains are large.
+  #
+  # It is important to note that this config value is global. That is to say all instances of the user agent filter
+  # share the same cache. The last declared cache size will 'win'. The reason for this is that there would be no benefit
+  # to having multiple caches for different instances at different points in the pipeline, that would just increase the
+  # number of cache misses and waste memory.
   config :lru_cache_size, :validate => :number, :default => 1000
 
   public
