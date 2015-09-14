@@ -68,7 +68,7 @@ describe LogStash::Filters::UserAgent do
       "minor" => lambda {|uad| uad.version.minor},
       "patch" => lambda {|uad| uad.version.patch},
       "build" => lambda {|uad| uad.version.patch_minor}
-    }.each do |field,uad_getter|
+    }.each do |field, uad_getter|
       context "for the #{field} field" do
         let(:value) {uad_getter.call(ua_data)}
         let(:target_field) { target[field]}

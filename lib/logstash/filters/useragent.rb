@@ -119,22 +119,21 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     # Calls in here use #dup because there's potential for later filters to modify these values
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
-    if ua_data.os
+    if (os = ua_data.os)
       # The OS is a rich object
       target[@prefix + "os"] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
+      target[@prefix + "os_name"] = os.name.dup.force_encoding(Encoding::UTF_8) if os.name
 
       # These are all strings
-      if (os = ua_data.os) && (os_version = os.version)
-        target[@prefix + "os_name"] = ua_data.os.name.dup.force_encoding(Encoding::UTF_8) if os.name
-        target[@prefix + "os_major"] = ua_data.os.version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
-        target[@prefix + "os_minor"] = ua_data.os.version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
+      if (os_version = os.version)
+        target[@prefix + "os_major"] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
+        target[@prefix + "os_minor"] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
       end
     end
 
-    target[@prefix + "device"] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if not ua_data.device.nil?
+    target[@prefix + "device"] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if ua_data.device
 
-    if ua_data.version
-      ua_version = ua_data.version
+    if (ua_version = ua_data.version)
       target[@prefix + "major"] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
       target[@prefix + "minor"] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
       target[@prefix + "patch"] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
