@@ -40,4 +40,51 @@ describe LogStash::Filters::UserAgent do
       insist { subject["minor"] } == "0"
     end
   end
+
+  describe "LRU object identity" do
+    let(:uafilter) { LogStash::Filters::UserAgent.new("source" => "foo") }
+    let(:ua_data) {
+      uafilter.lookup_useragent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
+    }
+    subject(:target) { {} }
+
+    before do
+      uafilter.register
+
+      # Stub this out because this UA doesn't have this field
+      allow(ua_data.version).to receive(:patch_minor).and_return("foo")
+
+      uafilter.write_to_target(target, ua_data)
+    end
+
+    {
+      "name" => lambda {|uad| uad.name},
+      "os" => lambda {|uad| uad.os.to_s},
+      "os_name" => lambda {|uad| uad.os.name},
+      "os_major" => lambda {|uad| uad.os.version.major},
+      "os_minor" => lambda {|uad| uad.os.version.minor},
+      "device" => lambda {|uad| uad.device.to_s},
+      "major" => lambda {|uad| uad.version.major},
+      "minor" => lambda {|uad| uad.version.minor},
+      "patch" => lambda {|uad| uad.version.patch},
+      "build" => lambda {|uad| uad.version.patch_minor}
+    }.each do |field, uad_getter|
+      context "for the #{field} field" do
+        let(:value) {uad_getter.call(ua_data)}
+        let(:target_field) { target[field]}
+
+        it "should not have a nil value" do
+          expect(target_field).to be_truthy
+        end
+
+        it "should have equivalent values" do
+          expect(target_field).to eql(value)
+        end
+
+        it "should dup/clone the field to prevent cache corruption" do
+          expect(target_field.object_id).not_to eql(value.object_id)
+        end
+      end
+    end
+  end
 end
