@@ -32,7 +32,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # with logstash.
   #
   # You can find the latest version of this here:
-  # <https://github.com/tobie/ua-parser/blob/master/regexes.yaml>
+  # <https://github.com/ua-parser/uap-core/blob/master/regexes.yaml>
   config :regexes, :validate => :string
 
   # A string to prepend to all of the extracted keys
