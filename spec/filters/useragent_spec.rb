@@ -41,6 +41,25 @@ describe LogStash::Filters::UserAgent do
     end
   end
 
+  describe "Without user agent" do
+    config <<-CONFIG
+      filter {
+        useragent {
+          source => "message"
+          target => "ua"
+        }
+      }
+    CONFIG
+
+    sample "foo" => "bar" do
+      reject { subject }.include?("ua")
+    end
+
+    sample "" do
+      reject { subject }.include?("ua")
+    end
+  end
+
   describe "LRU object identity" do
     let(:uafilter) { LogStash::Filters::UserAgent.new("source" => "foo") }
     let(:ua_data) {
