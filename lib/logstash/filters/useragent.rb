@@ -83,6 +83,8 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     useragent = event[@source]
     useragent = useragent.first if useragent.is_a? Array
 
+    return if useragent.nil? or useragent.empty?
+
     begin
       ua_data = lookup_useragent(useragent)
     rescue StandardError => e
@@ -149,4 +151,3 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   end
 
 end # class LogStash::Filters::UserAgent
-
