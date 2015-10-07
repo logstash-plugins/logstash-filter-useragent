@@ -78,7 +78,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
   public
   def filter(event)
-    return unless filter?(event)
+    
 
     useragent = event[@source]
     useragent = useragent.first if useragent.is_a? Array
