@@ -9,6 +9,13 @@ require "tempfile"
 # UserAgent filter, adds information about user agent like family, operating
 # system, version, and device
 #
+
+LINUX = ["Ubuntu", "Kubuntu", "Arch Linux", "CentOS", "Slackware", "Gentoo",
+         "openSUSE", "SUSE", "Red Hat", "Fedora", "PCLinuxOS", "Gentoo",
+         "Mageia", "BackTrack", "Lubuntu", "Puppy"]
+SIMPLE_OS = ["iOS", "Mac OS X", "Android", "Windows Phone", "Windows",
+             "BlackBerry", "Symbian"]
+
 # Logstash releases ship with the regexes.yaml database made available from
 # ua-parser with an Apache 2.0 license. For more details on ua-parser, see
 # <https://github.com/tobie/ua-parser/>.
@@ -137,6 +144,15 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       if (os_version = os.version)
         target[@prefix + "os_major"] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
         target[@prefix + "os_minor"] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
+      end
+
+      simple_name = SIMPLE_OS.find {|e| target[@prefix + "os_name"].start_with?(e) }
+      if simple_name
+        target[@prefix + "os_simple_name"] = simple_name
+      elsif LINUX.include? target[@prefix + "os_name"]
+        target[@prefix + "os_simple_name"] = "Linux"
+      else
+        target[@prefix + "os_simple_name"] = target[@prefix + "os_name"]
       end
     end
 
