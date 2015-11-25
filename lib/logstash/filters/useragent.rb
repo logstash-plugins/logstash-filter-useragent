@@ -58,16 +58,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   def register
     require 'user_agent_parser'
     if @regexes.nil?
-      begin
-        @parser = UserAgentParser::Parser.new()
-      rescue Exception => e
-        begin
-          path = ::File.expand_path('../../../vendor/regexes.yaml', ::File.dirname(__FILE__))
-          @parser = UserAgentParser::Parser.new(:patterns_path => path)
-        rescue => ex
-          raise "Failed to cache, due to: #{ex}\n"
-        end
-      end
+      @parser = UserAgentParser::Parser.new
     else
       @logger.info("Using user agent regexes", :regexes => @regexes)
       @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
