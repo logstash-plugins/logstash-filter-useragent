@@ -54,18 +54,18 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # number of cache misses and waste memory.
   config :lru_cache_size, :validate => :number, :default => 1000
 
-  public
   def register
     require 'user_agent_parser'
+
     if @regexes.nil?
       begin
-        @parser = UserAgentParser::Parser.new()
+        @parser = UserAgentParser::Parser.new
       rescue Exception => e
         begin
           path = ::File.expand_path('../../../vendor/regexes.yaml', ::File.dirname(__FILE__))
           @parser = UserAgentParser::Parser.new(:patterns_path => path)
         rescue => ex
-          raise "Failed to cache, due to: #{ex}\n"
+          raise("Failed to cache, due to: #{ex}\n")
         end
       end
     else
@@ -74,16 +74,28 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     end
 
     LOOKUP_CACHE.max_size = @lru_cache_size
-  end #def register
 
-  public
+    # make @target in the format [field name] if defined, i.e. surrounded by brakets
+    normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
+
+    # predefine prefixed field names
+    @prefixed_name = "#{normalized_target}[#{@prefix}name]"
+    @prefixed_os = "#{normalized_target}[#{@prefix}os]"
+    @prefixed_os_name = "#{normalized_target}[#{@prefix}os_name]"
+    @prefixed_os_major = "#{normalized_target}[#{@prefix}os_major]"
+    @prefixed_os_minor = "#{normalized_target}[#{@prefix}os_minor]"
+    @prefixed_device = "#{normalized_target}[#{@prefix}device]"
+    @prefixed_major = "#{normalized_target}[#{@prefix}major]"
+    @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
+    @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
+    @prefixed_build = "#{normalized_target}[#{@prefix}build]"
+  end
+
   def filter(event)
-    
-
     useragent = event[@source]
-    useragent = useragent.first if useragent.is_a? Array
+    useragent = useragent.first if useragent.is_a?(Array)
 
-    return if useragent.nil? or useragent.empty?
+    return if useragent.nil? || useragent.empty?
 
     begin
       ua_data = lookup_useragent(useragent)
@@ -94,19 +106,14 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     return unless ua_data
 
-    if @target.nil?
-      target = event
-    elsif @target == @source
-      target = event[@source] = {}
-    else
-      target = event[@target] ||= {}
-    end
-
-    write_to_target(target, ua_data)
+    event.remove(@source) if @target == @source
+    set_fields(event, ua_data)
 
     filter_matched(event)
-  end # def filter
+  end
 
+  # should be private but need to stay public for specs
+  # TODO: (colin) the related specs should be refactored to not rely on private methods.
   def lookup_useragent(useragent)
     return unless useragent
 
@@ -119,10 +126,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     ua_data
   end
 
-  def write_to_target(target, ua_data)
+  private
+
+  def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
 
-    target[@prefix + "name"] = ua_data.name.dup.force_encoding(Encoding::UTF_8)
+    event[@prefixed_name] = ua_data.name.dup.force_encoding(Encoding::UTF_8)
 
     #OSX, Andriod and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
@@ -130,24 +139,23 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
     if (os = ua_data.os)
       # The OS is a rich object
-      target[@prefix + "os"] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
-      target[@prefix + "os_name"] = os.name.dup.force_encoding(Encoding::UTF_8) if os.name
+      event[@prefixed_os] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
+      event[@prefixed_os_name] = os.name.dup.force_encoding(Encoding::UTF_8) if os.name
 
       # These are all strings
       if (os_version = os.version)
-        target[@prefix + "os_major"] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
-        target[@prefix + "os_minor"] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
+        event[@prefixed_os_major] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
+        event[@prefixed_os_minor] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
       end
     end
 
-    target[@prefix + "device"] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if ua_data.device
+    event[@prefixed_device] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if ua_data.device
 
     if (ua_version = ua_data.version)
-      target[@prefix + "major"] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
-      target[@prefix + "minor"] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
-      target[@prefix + "patch"] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
-      target[@prefix + "build"] = ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
+      event[@prefixed_major] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
+      event[@prefixed_minor] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
+      event[@prefixed_patch] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
+      event[@prefixed_build] = ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
     end
   end
-
-end # class LogStash::Filters::UserAgent
+end

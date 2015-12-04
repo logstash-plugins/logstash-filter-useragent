@@ -61,11 +61,11 @@ describe LogStash::Filters::UserAgent do
   end
 
   describe "LRU object identity" do
+    let(:ua_string) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
     let(:uafilter) { LogStash::Filters::UserAgent.new("source" => "foo") }
-    let(:ua_data) {
-      uafilter.lookup_useragent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36")
-    }
-    subject(:target) { {} }
+    let(:ua_data) { uafilter.lookup_useragent(ua_string) }
+
+    subject(:target) { LogStash::Event.new("foo" => ua_string) }
 
     before do
       uafilter.register
@@ -73,7 +73,8 @@ describe LogStash::Filters::UserAgent do
       # Stub this out because this UA doesn't have this field
       allow(ua_data.version).to receive(:patch_minor).and_return("foo")
 
-      uafilter.write_to_target(target, ua_data)
+      # expect(event).receive(:lookup_useragent)
+      uafilter.filter(target)
     end
 
     {
@@ -118,7 +119,7 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject }.include?("message")
+      insist { subject.to_hash }.include?("message")
       insist { subject["message"]["name"] } == "Chrome"
       insist { subject["message"]["os"] } == "Linux"
       insist { subject["message"]["major"] } == "26"
