@@ -1,3 +1,5 @@
+# 2.0.5
+  - New dependency requirements for logstash-core for the 5.0 release
 ## 2.0.4
  - Fefactored field references, fixed specs and some cleanups
 
