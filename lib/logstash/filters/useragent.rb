@@ -3,6 +3,7 @@ require "logstash/filters/base"
 require "logstash/namespace"
 require "lru_redux"
 require "tempfile"
+require "thread"
 
 # Parse user agent strings into structured data based on BrowserScope data
 #
@@ -72,6 +73,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       @logger.info("Using user agent regexes", :regexes => @regexes)
       @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
     end
+    @parser_mutex = Mutex.new
 
     LOOKUP_CACHE.max_size = @lru_cache_size
 
@@ -120,7 +122,10 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     cached = LOOKUP_CACHE[useragent]
     return cached if cached
 
-    ua_data = @parser.parse(useragent)
+    # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
+    # caused by the underlying JRuby regex code that is not thread safe.
+    # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
+    ua_data = @parser_mutex.synchronize { @parser.parse(useragent) }
 
     LOOKUP_CACHE[useragent] = ua_data
     ua_data
