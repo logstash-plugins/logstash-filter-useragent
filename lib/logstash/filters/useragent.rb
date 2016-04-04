@@ -73,7 +73,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       @logger.info("Using user agent regexes", :regexes => @regexes)
       @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
     end
-    @parser_mutex = Mutex.new
 
     LOOKUP_CACHE.max_size = @lru_cache_size
 
@@ -125,7 +124,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
     # caused by the underlying JRuby regex code that is not thread safe.
     # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
-    ua_data = @parser_mutex.synchronize { @parser.parse(useragent) }
+    ua_data = @parser.parse(useragent)
 
     LOOKUP_CACHE[useragent] = ua_data
     ua_data
