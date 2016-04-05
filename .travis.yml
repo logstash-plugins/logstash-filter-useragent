@@ -3,4 +3,8 @@ language: ruby
 cache: bundler
 rvm:
   - jruby-1.7.24
-script: bundle exec rspec spec && bundle exec rspec spec --tag integration
+before_install:
+- bundle install
+- bundle exec rake install_jars
+script:
+  - bundle exec rspec spec --tag integration

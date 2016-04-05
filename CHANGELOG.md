@@ -1,3 +1,7 @@
+# 2.1.0
+ - Move to Java library https://github.com/HaraldWalker/user-agent-utils to parse UA
+# 2.0.7
+  - Add travis.yml
 # 2.0.6
   - Depend on logstash-core-plugin-api instead of logstash-core, removing the need to mass update plugins on major releases of logstash
 # 2.0.5
