@@ -4,7 +4,6 @@ cache: bundler
 rvm:
   - jruby-1.7.24
 before_install:
-- bundle install
-- bundle exec rake install_jars
-script:
-  - bundle exec rspec spec --tag integration
+  - bundle install
+  - rake install_jars
+script: bundle exec rspec spec && bundle exec rspec spec --tag integration
