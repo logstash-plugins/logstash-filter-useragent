@@ -1,6 +1,6 @@
 # Logstash Plugin
 
-[![Build Status](https://travis-ci.org/logstash-plugins/logstash-filter-useragent.svg?branch=master)](https://travis-ci.org/logstash-plugins/logstash-filter-useragent)
+[![Travis Build Status](https://travis-ci.org/logstash-plugins/logstash-filter-useragent.svg)](https://travis-ci.org/logstash-plugins/logstash-filter-useragent)
 
 This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
@@ -8,7 +8,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 
 ## Output
 
-### Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13A344 Safari/601.1
+#### Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13A344 Safari/601.1
 
 ```json
 {
@@ -26,7 +26,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 }
 ```
 
-### Mozilla/5.0 (Android 4.4.2; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0
+#### Mozilla/5.0 (Android 4.4.2; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0
 
 ```json
 {
@@ -44,7 +44,7 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
 }
 ```
 
-### Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0
+#### Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0
 
 ```json
 {
@@ -117,7 +117,12 @@ gem "logstash-filter-awesome", :path => "/your/local/logstash-filter-awesome"
 ```
 - Install plugin
 ```sh
+# Logstash 2.3 and higher
+bin/logstah-plugin install --no-verify
+
+# Prior to Logstash 2.3
 bin/plugin install --no-verify
+
 ```
 - Run Logstash with your plugin
 ```sh
@@ -135,7 +140,12 @@ gem build logstash-filter-awesome.gemspec
 ```
 - Install the plugin from the Logstash home
 ```sh
-bin/plugin install /your/local/plugin/logstash-filter-awesome.gem
+# Logstash 2.3 and higher
+bin/logstah-plugin install --no-verify
+
+# Prior to Logstash 2.3
+bin/plugin install --no-verify
+
 ```
 - Start Logstash and proceed to test the plugin
 

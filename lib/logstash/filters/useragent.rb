@@ -47,6 +47,26 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   config :lru_cache_size, :validate => :number, :default => 1000
 
   def register
+<<<<<<< HEAD
+=======
+    require 'user_agent_parser'
+
+    if @regexes.nil?
+      begin
+        @parser = UserAgentParser::Parser.new
+      rescue Exception => e
+        begin
+          path = ::File.expand_path('../../../vendor/regexes.yaml', ::File.dirname(__FILE__))
+          @parser = UserAgentParser::Parser.new(:patterns_path => path)
+        rescue => ex
+          raise("Failed to cache, due to: #{ex}\n")
+        end
+      end
+    else
+      @logger.info("Using user agent regexes", :regexes => @regexes)
+      @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
+    end
+>>>>>>> upstream/master
 
     LOOKUP_CACHE.max_size = @lru_cache_size
 
@@ -84,7 +104,14 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     cached = LOOKUP_CACHE[useragent]
     return cached if cached
 
+<<<<<<< HEAD
     ua_data = parse_useragent(useragent)
+=======
+    # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
+    # caused by the underlying JRuby regex code that is not thread safe.
+    # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
+    ua_data = @parser.parse(useragent)
+>>>>>>> upstream/master
 
     LOOKUP_CACHE[useragent] = ua_data
     ua_data
