@@ -115,9 +115,9 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     end
 
     if os
-      ua_data["os_name"] = os.getName()
+      ua_data["os"] = os.getName()
       ua_data["os_vendor"] = os.getManufacturer().getName()
-      ua_data["os"] = os.getGroup().getName()
+      ua_data["os_name"] = os.getGroup().getName()
       ua_data["os_type"] = os.getDeviceType().getName()
     end
 

@@ -19,9 +19,9 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
           "major" : "9",
           "minor" : "0",
         "version" : "9.0",
-    "os_fullname" : "iOS 9 (iPad)",
+    "os" : "iOS 9 (iPad)",
       "os_vendor" : "Apple Inc.",
-             "os" : "iOS",
+             "os_name" : "iOS",
          "device" : "Tablet"
 }
 ```
@@ -37,9 +37,9 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
           "major" : "41",
           "minor" : "0",
         "version" : "41.0",
-    "os_fullname" : "Android 4.x",
+    "os" : "Android 4.x",
       "os_vendor" : "Google Inc.",
-             "os" : "Android",
+             "os_name" : "Android",
          "device" : "Mobile"
 }
 ```
@@ -55,9 +55,9 @@ It is fully free and fully open source. The license is Apache 2.0, meaning you a
           "major" : "36",
           "minor" : "0",
         "version" : "36.0",
-    "os_fullname" : "Ubuntu",
+    "os" : "Ubuntu",
       "os_vendor" : "Canonical Ltd.",
-             "os" : "Linux",
+             "os_name" : "Linux",
          "device" : "Computer"
 }
 ```

@@ -1,4 +1,4 @@
-# 2.1.0
+# 3.0.0
  - Move to Java library https://github.com/HaraldWalker/user-agent-utils to parse UA
 # 2.0.8
   - Revert addition of Mutex. This plugin now depends on jruby having threadsafe regexps
