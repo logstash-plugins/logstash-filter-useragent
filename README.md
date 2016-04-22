@@ -6,6 +6,62 @@ This is a plugin for [Logstash](https://github.com/elastic/logstash).
 
 It is fully free and fully open source. The license is Apache 2.0, meaning you are pretty much free to use it however you want in whatever way.
 
+## Output
+
+#### Mozilla/5.0 (iPad; CPU OS 9_0 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13A344 Safari/601.1
+
+```json
+{
+           "name" : "Safari",
+       "fullname" : "Mobile Safari",
+         "vendor" : "Apple Inc.",
+           "type" : "Browser (mobile)",
+          "major" : "9",
+          "minor" : "0",
+        "version" : "9.0",
+    "os" : "iOS 9 (iPad)",
+      "os_vendor" : "Apple Inc.",
+             "os_name" : "iOS",
+         "device" : "Tablet"
+}
+```
+
+#### Mozilla/5.0 (Android 4.4.2; Mobile; rv:41.0) Gecko/41.0 Firefox/41.0
+
+```json
+{
+           "name" : "Firefox",
+       "fullname" : "Firefox Mobile",
+         "vendor" : "Mozilla Foundation",
+           "type" : "Browser (mobile)",
+          "major" : "41",
+          "minor" : "0",
+        "version" : "41.0",
+    "os" : "Android 4.x",
+      "os_vendor" : "Google Inc.",
+             "os_name" : "Android",
+         "device" : "Mobile"
+}
+```
+
+#### Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0
+
+```json
+{
+           "name" : "Firefox",
+       "fullname" : "Firefox 36",
+         "vendor" : "Mozilla Foundation",
+           "type" : "Browser",
+          "major" : "36",
+          "minor" : "0",
+        "version" : "36.0",
+    "os" : "Ubuntu",
+      "os_vendor" : "Canonical Ltd.",
+             "os_name" : "Linux",
+         "device" : "Computer"
+}
+```
+
 ## Documentation
 
 Logstash provides infrastructure to automatically generate documentation for this plugin. We use the asciidoc format to write documentation so any comments in the source code will be first converted into asciidoc and then into html. All plugin documentation are placed under one [central location](http://www.elastic.co/guide/en/logstash/current/).
@@ -36,7 +92,13 @@ bundle install
 - Update your dependencies
 
 ```sh
-bundle install
+bundle install`
+```
+
+- Install jar dependencies
+
+```
+bundle exec rake install_jars
 ```
 
 - Run tests

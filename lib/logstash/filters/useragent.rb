@@ -3,16 +3,16 @@ require "logstash/filters/base"
 require "logstash/namespace"
 require "lru_redux"
 require "tempfile"
-require "thread"
+require "logstash-filter-useragent_jars"
 
-# Parse user agent strings into structured data based on BrowserScope data
+java_import "eu.bitwalker.useragentutils.UserAgent"
+
+# Parse user agent strings into structured data based on the Java library:
+# <https://github.com/HaraldWalker/user-agent-utils>
 #
 # UserAgent filter, adds information about user agent like family, operating
 # system, version, and device
 #
-# Logstash releases ship with the regexes.yaml database made available from
-# ua-parser with an Apache 2.0 license. For more details on ua-parser, see
-# <https://github.com/tobie/ua-parser/>.
 class LogStash::Filters::UserAgent < LogStash::Filters::Base
   LOOKUP_CACHE = LruRedux::ThreadSafeCache.new(1000)
 
@@ -26,15 +26,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   #
   # If not specified user agent data will be stored in the root of the event.
   config :target, :validate => :string
-
-  # `regexes.yaml` file to use
-  #
-  # If not specified, this will default to the `regexes.yaml` that ships
-  # with logstash.
-  #
-  # You can find the latest version of this here:
-  # <https://github.com/tobie/ua-parser/blob/master/regexes.yaml>
-  config :regexes, :validate => :string
 
   # A string to prepend to all of the extracted keys
   config :prefix, :validate => :string, :default => ''
@@ -56,40 +47,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   config :lru_cache_size, :validate => :number, :default => 1000
 
   def register
-    require 'user_agent_parser'
-
-    if @regexes.nil?
-      begin
-        @parser = UserAgentParser::Parser.new
-      rescue Exception => e
-        begin
-          path = ::File.expand_path('../../../vendor/regexes.yaml', ::File.dirname(__FILE__))
-          @parser = UserAgentParser::Parser.new(:patterns_path => path)
-        rescue => ex
-          raise("Failed to cache, due to: #{ex}\n")
-        end
-      end
-    else
-      @logger.info("Using user agent regexes", :regexes => @regexes)
-      @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
-    end
 
     LOOKUP_CACHE.max_size = @lru_cache_size
 
     # make @target in the format [field name] if defined, i.e. surrounded by brakets
-    normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
+    @normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
 
-    # predefine prefixed field names
-    @prefixed_name = "#{normalized_target}[#{@prefix}name]"
-    @prefixed_os = "#{normalized_target}[#{@prefix}os]"
-    @prefixed_os_name = "#{normalized_target}[#{@prefix}os_name]"
-    @prefixed_os_major = "#{normalized_target}[#{@prefix}os_major]"
-    @prefixed_os_minor = "#{normalized_target}[#{@prefix}os_minor]"
-    @prefixed_device = "#{normalized_target}[#{@prefix}device]"
-    @prefixed_major = "#{normalized_target}[#{@prefix}major]"
-    @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
-    @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
-    @prefixed_build = "#{normalized_target}[#{@prefix}build]"
   end
 
   def filter(event)
@@ -121,10 +84,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     cached = LOOKUP_CACHE[useragent]
     return cached if cached
 
-    # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
-    # caused by the underlying JRuby regex code that is not thread safe.
-    # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
-    ua_data = @parser.parse(useragent)
+    ua_data = parse_useragent(useragent)
 
     LOOKUP_CACHE[useragent] = ua_data
     ua_data
@@ -132,34 +92,41 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
   private
 
-  def set_fields(event, ua_data)
-    # UserAgentParser outputs as US-ASCII.
+  # Transform UserAgent object to plain object
+  def parse_useragent(useragent)
+    ua_raw_data = UserAgent.parseUserAgentString(useragent)
+    ua_data = Hash.new
 
-    event[@prefixed_name] = ua_data.name.dup.force_encoding(Encoding::UTF_8)
+    os = ua_raw_data.getOperatingSystem()
+    browser = ua_raw_data.getBrowser()
+    version = ua_raw_data.getBrowserVersion()
 
-    #OSX, Andriod and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
-
-    # Calls in here use #dup because there's potential for later filters to modify these values
-    # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
-    if (os = ua_data.os)
-      # The OS is a rich object
-      event[@prefixed_os] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
-      event[@prefixed_os_name] = os.name.dup.force_encoding(Encoding::UTF_8) if os.name
-
-      # These are all strings
-      if (os_version = os.version)
-        event[@prefixed_os_major] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
-        event[@prefixed_os_minor] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
-      end
+    if browser
+      ua_data["name"] = browser.getGroup().getName()
+      ua_data["fullname"] = browser.getName()
+      ua_data["vendor"] = browser.getManufacturer().getName()
+      ua_data["type"] = browser.getBrowserType().getName()
     end
 
-    event[@prefixed_device] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if ua_data.device
+    if version
+      ua_data["major"] = version.getMajorVersion()
+      ua_data["minor"] = version.getMinorVersion()
+      ua_data["version"] = version.getVersion()
+    end
 
-    if (ua_version = ua_data.version)
-      event[@prefixed_major] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
-      event[@prefixed_minor] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
-      event[@prefixed_patch] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
-      event[@prefixed_build] = ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
+    if os
+      ua_data["os"] = os.getName()
+      ua_data["os_vendor"] = os.getManufacturer().getName()
+      ua_data["os_name"] = os.getGroup().getName()
+      ua_data["os_type"] = os.getDeviceType().getName()
+    end
+
+    ua_data
+  end
+
+  def set_fields(event, ua_data)
+    ua_data.each do |field, value|
+      event["#{@normalized_target}[#{@prefix}#{field}]"] = value.dup if value
     end
   end
 end

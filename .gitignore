@@ -1,4 +1,6 @@
 *.gem
+/.mvn
 Gemfile.lock
 .bundle
-vendor
+lib/eu
+lib/logstash-filter-useragent_jars.rb
