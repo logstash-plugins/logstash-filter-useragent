@@ -93,7 +93,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   end
 
   def filter(event)
-    useragent = event[@source]
+    useragent = event.get(@source)
     useragent = useragent.first if useragent.is_a?(Array)
 
     return if useragent.nil? || useragent.empty?
@@ -135,7 +135,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
 
-    event[@prefixed_name] = ua_data.name.dup.force_encoding(Encoding::UTF_8)
+    event.set(@prefixed_name, ua_data.name.dup.force_encoding(Encoding::UTF_8))
 
     #OSX, Andriod and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
@@ -143,23 +143,23 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
     if (os = ua_data.os)
       # The OS is a rich object
-      event[@prefixed_os] = ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8)
-      event[@prefixed_os_name] = os.name.dup.force_encoding(Encoding::UTF_8) if os.name
+      event.set(@prefixed_os, ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8))
+      event.set(@prefixed_os_name, os.name.dup.force_encoding(Encoding::UTF_8)) if os.name
 
       # These are all strings
       if (os_version = os.version)
-        event[@prefixed_os_major] = os_version.major.dup.force_encoding(Encoding::UTF_8) if os_version.major
-        event[@prefixed_os_minor] = os_version.minor.dup.force_encoding(Encoding::UTF_8) if os_version.minor
+        event.set(@prefixed_os_major, os_version.major.dup.force_encoding(Encoding::UTF_8)) if os_version.major
+        event.set(@prefixed_os_minor, os_version.minor.dup.force_encoding(Encoding::UTF_8)) if os_version.minor
       end
     end
 
-    event[@prefixed_device] = ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8) if ua_data.device
+    event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
 
     if (ua_version = ua_data.version)
-      event[@prefixed_major] = ua_version.major.dup.force_encoding(Encoding::UTF_8) if ua_version.major
-      event[@prefixed_minor] = ua_version.minor.dup.force_encoding(Encoding::UTF_8) if ua_version.minor
-      event[@prefixed_patch] = ua_version.patch.dup.force_encoding(Encoding::UTF_8) if ua_version.patch
-      event[@prefixed_build] = ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8) if ua_version.patch_minor
+      event.set(@prefixed_major, ua_version.major.dup.force_encoding(Encoding::UTF_8)) if ua_version.major
+      event.set(@prefixed_minor, ua_version.minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.minor
+      event.set(@prefixed_patch, ua_version.patch.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch
+      event.set(@prefixed_build, ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch_minor
     end
   end
 end

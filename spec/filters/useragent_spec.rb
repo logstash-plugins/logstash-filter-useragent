@@ -17,10 +17,10 @@ describe LogStash::Filters::UserAgent do
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
       insist { subject }.include?("ua")
-      insist { subject["ua"]["name"] } == "Chrome"
-      insist { subject["ua"]["os"] } == "Linux"
-      insist { subject["ua"]["major"] } == "26"
-      insist { subject["ua"]["minor"] } == "0"
+      insist { subject.get("[ua][name]") } == "Chrome"
+      insist { subject.get("[ua][os]") } == "Linux"
+      insist { subject.get("[ua][major]") } == "26"
+      insist { subject.get("[ua][minor]") } == "0"
     end
   end
 
@@ -34,10 +34,10 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject["name"] } == "Chrome"
-      insist { subject["os"] } == "Linux"
-      insist { subject["major"] } == "26"
-      insist { subject["minor"] } == "0"
+      insist { subject.get("name") } == "Chrome"
+      insist { subject.get("os") } == "Linux"
+      insist { subject.get("major") } == "26"
+      insist { subject.get("minor") } == "0"
     end
   end
 
@@ -91,7 +91,7 @@ describe LogStash::Filters::UserAgent do
     }.each do |field, uad_getter|
       context "for the #{field} field" do
         let(:value) {uad_getter.call(ua_data)}
-        let(:target_field) { target[field]}
+        let(:target_field) { target.get(field)}
 
         it "should not have a nil value" do
           expect(target_field).to be_truthy
@@ -120,10 +120,10 @@ describe LogStash::Filters::UserAgent do
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
       insist { subject.to_hash }.include?("message")
-      insist { subject["message"]["name"] } == "Chrome"
-      insist { subject["message"]["os"] } == "Linux"
-      insist { subject["message"]["major"] } == "26"
-      insist { subject["message"]["minor"] } == "0"
+      insist { subject.get("[message][name]") } == "Chrome"
+      insist { subject.get("[message][os]") } == "Linux"
+      insist { subject.get("[message][major]") } == "26"
+      insist { subject.get("[message][minor]") } == "0"
     end
   end
 end
