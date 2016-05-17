@@ -137,7 +137,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     event.set(@prefixed_name, ua_data.name.dup.force_encoding(Encoding::UTF_8))
 
-    #OSX, Andriod and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
+    #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
     # Calls in here use #dup because there's potential for later filters to modify these values
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
