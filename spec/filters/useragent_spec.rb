@@ -60,6 +60,25 @@ describe LogStash::Filters::UserAgent do
     end
   end
 
+  describe "Specifying fields" do
+    config <<-CONFIG
+      filter {
+        useragent {
+          source => "message"
+          fields => ["name", "version", "os", "os_version", "device"]
+        }
+      }
+    CONFIG
+
+    sample "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:31.0) Gecko/20130401 Firefox/31.0" do
+      expect(subject).not_to include("os_major")
+      expect(subject).not_to include("major")
+      insist { subject.get("os") } == "Windows 7"
+      insist { subject.get("name") } == "Firefox"
+      insist { subject.get("version") } == "31.0"
+    end
+  end
+
   describe "LRU object identity" do
     let(:ua_string) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
     let(:uafilter) { LogStash::Filters::UserAgent.new("source" => "foo") }
@@ -81,9 +100,11 @@ describe LogStash::Filters::UserAgent do
       "name" => lambda {|uad| uad.name},
       "os" => lambda {|uad| uad.os.to_s},
       "os_name" => lambda {|uad| uad.os.name},
+      "os_version" => lambda {|uad| uad.os.version.to_s},
       "os_major" => lambda {|uad| uad.os.version.major},
       "os_minor" => lambda {|uad| uad.os.version.minor},
       "device" => lambda {|uad| uad.device.to_s},
+      "version" => lambda {|uad| uad.version.to_s},
       "major" => lambda {|uad| uad.version.major},
       "minor" => lambda {|uad| uad.version.minor},
       "patch" => lambda {|uad| uad.version.patch},

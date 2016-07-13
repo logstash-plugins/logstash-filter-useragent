@@ -55,6 +55,19 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # number of cache misses and waste memory.
   config :lru_cache_size, :validate => :number, :default => 1000
 
+  # An array of useragent fields to be included in the event.
+  #
+  # Possible fields depend on the parser. By default, all useragent fields
+  # are included in the event.
+  #
+  # For the built-in ua-parser, the following are available:
+  # `name`, `version`, `major`, `minor`, `patch`, `build`,
+  # `os`, `os_name`, `os_version`, `os_major`, `os_minor`, and `device`
+  config :fields, :validate => :array, :default => [
+    'name', 'version', 'major', 'minor', 'patch', 'build',
+    'os', 'os_name', 'os_version', 'os_major', 'os_minor', 'device'
+  ]
+
   def register
     require 'user_agent_parser'
 
@@ -83,9 +96,11 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     @prefixed_name = "#{normalized_target}[#{@prefix}name]"
     @prefixed_os = "#{normalized_target}[#{@prefix}os]"
     @prefixed_os_name = "#{normalized_target}[#{@prefix}os_name]"
+    @prefixed_os_version = "#{normalized_target}[#{@prefix}os_version]"
     @prefixed_os_major = "#{normalized_target}[#{@prefix}os_major]"
     @prefixed_os_minor = "#{normalized_target}[#{@prefix}os_minor]"
     @prefixed_device = "#{normalized_target}[#{@prefix}device]"
+    @prefixed_version = "#{normalized_target}[#{@prefix}version]"
     @prefixed_major = "#{normalized_target}[#{@prefix}major]"
     @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
     @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
@@ -134,32 +149,52 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
   def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
-
-    event.set(@prefixed_name, ua_data.name.dup.force_encoding(Encoding::UTF_8))
-
+    
     #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
     # Calls in here use #dup because there's potential for later filters to modify these values
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
-    if (os = ua_data.os)
-      # The OS is a rich object
-      event.set(@prefixed_os, ua_data.os.to_s.dup.force_encoding(Encoding::UTF_8))
-      event.set(@prefixed_os_name, os.name.dup.force_encoding(Encoding::UTF_8)) if os.name
 
-      # These are all strings
-      if (os_version = os.version)
-        event.set(@prefixed_os_major, os_version.major.dup.force_encoding(Encoding::UTF_8)) if os_version.major
-        event.set(@prefixed_os_minor, os_version.minor.dup.force_encoding(Encoding::UTF_8)) if os_version.minor
-      end
-    end
+    os = ua_data.os
+    os_version = os.version if os
+    version = ua_data.version
 
-    event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
+    @fields.each do |field|
+      case field
+      # agent
+      when "name"
+        event.set(@prefixed_name, ua_data.family.dup.force_encoding(Encoding::UTF_8))
+      when "version"
+        event.set(@prefixed_version, version.to_s.dup.force_encoding(Encoding::UTF_8)) if version
+      when "major"
+        event.set(@prefixed_major, version.major.dup.force_encoding(Encoding::UTF_8)) if version && version.major
+      when "minor"
+        event.set(@prefixed_minor, version.minor.dup.force_encoding(Encoding::UTF_8)) if version && version.minor
+      when "patch"
+        event.set(@prefixed_patch, version.patch.dup.force_encoding(Encoding::UTF_8)) if version && version.patch
+      when "build"
+        event.set(@prefixed_build, version.patch_minor.dup.force_encoding(Encoding::UTF_8)) if version && version.patch_minor
+      
+      #os
+      when "os"
+        event.set(@prefixed_os, os.to_s.dup.force_encoding(Encoding::UTF_8)) if os
+      when "os_name"
+        event.set(@prefixed_os_name, os.name.dup.force_encoding(Encoding::UTF_8)) if os && os.name
+      when "os_version"
+        event.set(@prefixed_os_version, os_version.to_s.dup.force_encoding(Encoding::UTF_8)) if os_version
+      when "os_major"
+        event.set(@prefixed_os_major, os_version.major.dup.force_encoding(Encoding::UTF_8)) if os_version && os_version.major
+      when "os_minor"
+        event.set(@prefixed_os_minor, os_version.minor.dup.force_encoding(Encoding::UTF_8)) if os_version && os_version.minor
+      
+      #device
+      when "device"
+        event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
 
-    if (ua_version = ua_data.version)
-      event.set(@prefixed_major, ua_version.major.dup.force_encoding(Encoding::UTF_8)) if ua_version.major
-      event.set(@prefixed_minor, ua_version.minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.minor
-      event.set(@prefixed_patch, ua_version.patch.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch
-      event.set(@prefixed_build, ua_version.patch_minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch_minor
-    end
+      else
+        raise Exception.new("[#{field}] is not a supported field option.")
+      end # end case
+    
+    end # end each
   end
 end
