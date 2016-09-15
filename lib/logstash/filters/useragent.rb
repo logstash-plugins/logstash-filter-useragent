@@ -70,7 +70,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
         end
       end
     else
-      @logger.info("Using user agent regexes", :regexes => @regexes)
+      @logger.debug("Using user agent regexes", :regexes => @regexes)
       @parser = UserAgentParser::Parser.new(:patterns_path => @regexes)
     end
 
