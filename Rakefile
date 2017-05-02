@@ -1,10 +1,20 @@
-require 'json'
-
-BASE_PATH = File.expand_path(File.dirname(__FILE__))
-@files = JSON.parse(File.read(File.join(BASE_PATH, 'vendor.json')))
-
 task :default do
   system("rake -T")
 end
 
-require "logstash/devutils/rake"
+require 'logstash/devutils/rake'
+require 'jars/installer'
+
+task :install_jars do
+  `./gradlew vendor`
+end
+
+task :vendor => :install_jars
+
+task :test do
+  require 'rspec/core/runner'
+  require 'rspec'
+  system './gradlew clean test'
+  Rake::Task[:install_jars].invoke
+  exit(RSpec::Core::Runner.run(Rake::FileList['spec/**/*_spec.rb']))
+end
