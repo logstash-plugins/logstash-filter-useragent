@@ -29,6 +29,7 @@ Need help? Try #logstash on freenode IRC or the https://discuss.elastic.co/c/log
 - Install dependencies
 ```sh
 bundle install
+rake install_jars
 ```
 
 #### Test
@@ -42,7 +43,7 @@ bundle install
 - Run tests
 
 ```sh
-bundle exec rspec
+bundle exec rake test
 ```
 
 ### 2. Running your unpublished Plugin in Logstash

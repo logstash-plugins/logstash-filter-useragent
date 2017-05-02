@@ -71,23 +71,23 @@ describe LogStash::Filters::UserAgent do
       uafilter.register
 
       # Stub this out because this UA doesn't have this field
-      allow(ua_data.version).to receive(:patch_minor).and_return("foo")
+      allow(ua_data.userAgent).to receive(:patchMinor).and_return("foo")
 
       # expect(event).receive(:lookup_useragent)
       uafilter.filter(target)
     end
 
     {
-      "name" => lambda {|uad| uad.name},
-      "os" => lambda {|uad| uad.os.to_s},
-      "os_name" => lambda {|uad| uad.os.name},
-      "os_major" => lambda {|uad| uad.os.version.major},
-      "os_minor" => lambda {|uad| uad.os.version.minor},
+      "name" => lambda {|uad| uad.userAgent.family},
+      "os" => lambda {|uad| uad.os.family},
+      "os_name" => lambda {|uad| uad.os.family},
+      "os_major" => lambda {|uad| uad.os.major},
+      "os_minor" => lambda {|uad| uad.os.minor},
       "device" => lambda {|uad| uad.device.to_s},
-      "major" => lambda {|uad| uad.version.major},
-      "minor" => lambda {|uad| uad.version.minor},
-      "patch" => lambda {|uad| uad.version.patch},
-      "build" => lambda {|uad| uad.version.patch_minor}
+      "major" => lambda {|uad| uad.userAgent.major},
+      "minor" => lambda {|uad| uad.userAgent.minor},
+      "patch" => lambda {|uad| uad.userAgent.patch},
+      "build" => lambda {|uad| uad.userAgent.patchMinor}
     }.each do |field, uad_getter|
       context "for the #{field} field" do
         let(:value) {uad_getter.call(ua_data)}
