@@ -3,3 +3,10 @@
 Gemfile.lock
 .bundle
 vendor
+*.iml
+*.iws
+*.ipr
+target
+*.class
+build
+.gradle
