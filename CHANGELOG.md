@@ -1,3 +1,8 @@
+## 3.1.0
+  - Parser performance increase of a factor of about 2.5 by moving core parser logic from Ruby to Java
+  - Lower memory footprint of Java implementation allowed for increasing the default parser cache size from 1k to 100k
+    without an increase in memory consumption
+
 ## 3.0.3
   - Move one log message from info to debug to avoid noise
 
@@ -17,7 +22,7 @@
 # 2.0.5
   - New dependency requirements for logstash-core for the 5.0 release
 ## 2.0.4
- - Fefactored field references, fixed specs and some cleanups
+ - Refactored field references, fixed specs and some cleanups
 
 ## 2.0.0
  - Plugins were updated to follow the new shutdown semantic, this mainly allows Logstash to instruct input plugins to terminate gracefully,
