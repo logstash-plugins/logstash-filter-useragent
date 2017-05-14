@@ -1,3 +1,6 @@
+## 3.1.1
+  - Fixed an issue preventing the plugin from working with a custom regex yaml file.
+
 ## 3.1.0
   - Parser performance increase of a factor of about 2.5 by moving core parser logic from Ruby to Java
   - Lower memory footprint of Java implementation allowed for increasing the default parser cache size from 1k to 100k
