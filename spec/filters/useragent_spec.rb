@@ -24,6 +24,26 @@ describe LogStash::Filters::UserAgent do
     end
   end
 
+  describe "manually specified regexes file" do
+    config <<-CONFIG
+      filter {
+        useragent {
+          source => "message"
+          target => "ua"
+          regexes => "build/resources/main/regexes.yaml"
+        }
+      }
+    CONFIG
+
+    sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
+      insist { subject }.include?("ua")
+      insist { subject.get("[ua][name]") } == "Chrome"
+      insist { subject.get("[ua][os]") } == "Linux"
+      insist { subject.get("[ua][major]") } == "26"
+      insist { subject.get("[ua][minor]") } == "0"
+    end
+  end
+  
   describe "Without target field" do
     config <<-CONFIG
       filter {
