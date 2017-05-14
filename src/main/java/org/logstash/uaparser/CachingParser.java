@@ -18,7 +18,10 @@
 package org.logstash.uaparser;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import org.apache.commons.collections4.map.LRUMap;
 
@@ -43,7 +46,14 @@ public final class CachingParser extends Parser {
         this(new Parser(), cacheSize);
     }
 
-    public CachingParser(String regexYaml) {
+    public CachingParser(String yamlPath, final int cacheSize) throws IOException {
+        this(
+            new Parser(new ByteArrayInputStream(Files.readAllBytes(Paths.get(yamlPath)))),
+            cacheSize
+        );
+    }
+    
+    CachingParser(String regexYaml) {
         this(
             new Parser(new ByteArrayInputStream(regexYaml.getBytes(StandardCharsets.UTF_8)))
         );

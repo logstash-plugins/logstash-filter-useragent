@@ -61,9 +61,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       @parser = org.logstash.uaparser.CachingParser.new(lru_cache_size)
     else
       @logger.debug("Using user agent regexes", :regexes => @regexes)
-      yaml = ::File.open(regexes, "rb")
-      @parser = org.logstash.uaparser.CachingParser.new(yaml.read, lru_cache_size)
-      yaml.close
+      @parser = org.logstash.uaparser.CachingParser.new(@regexes, lru_cache_size)
     end
 
     # make @target in the format [field name] if defined, i.e. surrounded by brakets
