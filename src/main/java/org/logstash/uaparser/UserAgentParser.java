@@ -99,7 +99,7 @@ final class UserAgentParser {
             }
         }
 
-        public UserAgent match(final CharSequence agentString) {
+        public synchronized UserAgent match(final CharSequence agentString) {
             this.matcher.reset(agentString);
             if (!this.matcher.find()) {
                 return null;

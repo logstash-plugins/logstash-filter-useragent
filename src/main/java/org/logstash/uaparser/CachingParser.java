@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Map;
 import org.apache.commons.collections4.map.LRUMap;
 
@@ -69,7 +70,7 @@ public final class CachingParser extends Parser {
 
     private CachingParser(final Parser parser, final int cacheSize) {
         this.parser = parser;
-        this.cacheClient = new LRUMap<>(cacheSize);
+        this.cacheClient = Collections.synchronizedMap(new LRUMap<>(cacheSize));
     }
 
     public Client parse(final String agentString) {

@@ -95,7 +95,7 @@ final class OSParser {
             this.v3Replacement = v3Replacement;
         }
 
-        public OS match(final String agentString) {
+        public synchronized OS match(final String agentString) {
             this.matcher.reset(agentString);
             if (!this.matcher.find()) {
                 return null;

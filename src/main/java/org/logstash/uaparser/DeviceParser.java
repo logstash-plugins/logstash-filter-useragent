@@ -85,7 +85,7 @@ final class DeviceParser {
             this.deviceReplacement = deviceReplacement;
         }
 
-        public String match(final CharSequence agentString) {
+        public synchronized String match(final CharSequence agentString) {
             this.matcher.reset(agentString);
             if (!this.matcher.find()) {
                 return null;
