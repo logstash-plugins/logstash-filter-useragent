@@ -24,6 +24,9 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.Before;
 import org.junit.Test;
 import org.yaml.snakeyaml.Yaml;
@@ -94,6 +97,27 @@ public class ParserTest {
     assertThat(parser.parse(agentString2), is(expected2));
   }
 
+  /**
+   * Ensure that the parser is threadsafe.
+   * @throws Exception On Failure
+   */
+  @Test
+  public void testConcurrentParse() throws Exception {
+    final int threads = 3;
+    final ExecutorService exec = Executors.newScheduledThreadPool(threads);
+    try {
+      final Future<?>[] futures = new Future[threads];
+      for (int i = 0; i < threads; ++i) {
+        futures[i] = exec.submit(() -> testParseUserAgent());
+      }
+      for (int i = 0; i < 3; ++i) {
+        futures[i].get();
+      }
+    } finally {
+      exec.shutdownNow();
+    }
+  }
+  
   @Test
   public void testReplacementQuoting() throws Exception {
     final String testConfig = "user_agent_parsers:\n"
@@ -120,8 +144,11 @@ public class ParserTest {
 
   void testUserAgentFromYaml(final String filename) {
     final InputStream yamlStream = this.getClass().getResourceAsStream(TEST_RESOURCE_PATH + filename);
-
-    final List<Map> testCases = (List<Map>) ((Map)yaml.load(yamlStream)).get("test_cases");
+    final List<Map> testCases;
+    // Synchronized since this is used in a concurrent test and not itself threadsafe.
+    synchronized (yaml) {
+      testCases = (List<Map>) ((Map) yaml.load(yamlStream)).get("test_cases");
+    }
     for(final Map<String, String> testCase : testCases) {
       // Skip tests with js_ua as those overrides are not yet supported in java
       if (testCase.containsKey("js_ua")) continue;
