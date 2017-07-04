@@ -1,3 +1,6 @@
+## 3.1.2
+  - Fixed an issue where concurrent event parsing failed randomly
+
 ## 3.1.1
   - Fixed an issue preventing the plugin from working with a custom regex yaml file.
 
