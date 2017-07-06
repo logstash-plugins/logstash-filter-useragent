@@ -1,5 +1,8 @@
-## 3.1.2
+## 3.1.3
   - Fixed an issue where concurrent event parsing failed randomly
+
+## 3.1.2
+  - Yanked because of broken Gem release missing a file
 
 ## 3.1.1
   - Fixed an issue preventing the plugin from working with a custom regex yaml file.
