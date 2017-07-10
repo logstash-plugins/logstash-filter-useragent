@@ -1,3 +1,6 @@
+## 3.2.0
+  - Update regex source with more recent modifications
+
 ## 3.1.3
   - Fixed an issue where concurrent event parsing failed randomly
 
