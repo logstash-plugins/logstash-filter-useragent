@@ -1,3 +1,6 @@
+## 3.2.1
+  - Fix some documentation issues
+
 ## 3.2.0
   - Update regex source with more recent modifications
 
