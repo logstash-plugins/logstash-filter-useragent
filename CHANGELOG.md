@@ -1,3 +1,6 @@
+## 3.2.3
+ - Update source mapping to latest from uap-core ([#53](https://github.com/logstash-plugins/logstash-filter-useragent/issues/53))
+
 ## 3.2.2
   - Update gemspec summary
 
