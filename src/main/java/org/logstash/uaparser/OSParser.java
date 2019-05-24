@@ -114,19 +114,19 @@ final class OSParser {
             }
             String v1 = null;
             if (this.v1Replacement != null) {
-                v1 = this.v1Replacement;
+                v1 = getReplacement(matcher, v1Replacement);
             } else if (groupCount >= 2) {
                 v1 = this.matcher.group(2);
             }
             String v2 = null;
             if (this.v2Replacement != null) {
-                v2 = this.v2Replacement;
+                v2 = getReplacement(matcher, v2Replacement);
             } else if (groupCount >= 3) {
                 v2 = this.matcher.group(3);
             }
             String v3 = null;
             if (this.v3Replacement != null) {
-                v3 = this.v3Replacement;
+                v3 = getReplacement(matcher, v3Replacement);
             } else if (groupCount >= 4) {
                 v3 = this.matcher.group(4);
             }
@@ -135,6 +135,29 @@ final class OSParser {
                 v4 = this.matcher.group(5);
             }
             return family == null ? null : new OS(family, v1, v2, v3, v4);
+        }
+
+        private String getReplacement(Matcher matcher, String replacement) {
+            if (isBackReference(replacement)) {
+                int group = getGroup(replacement);
+                return matcher.group(group);
+            } else {
+                return replacement;
+            }
+        }
+
+        /**
+         * Checks if the replacement is a backreference (i.e. $1, $2, $3, etc) to a capturing group in the regular expression.
+         */
+        private boolean isBackReference(String replacement) {
+            return replacement.startsWith("$");
+        }
+
+        /**
+         * Extracts the group number from a backreference like $1, $2, $3, etc.
+         */
+        private int getGroup(String backReference) {
+            return Integer.valueOf(backReference.substring(1));
         }
     }
 }
