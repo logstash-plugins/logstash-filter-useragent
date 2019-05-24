@@ -1,3 +1,6 @@
+## 3.2.4
+ - Added support for OS regular expressions that use backreferences [#59](https://github.com/logstash-plugins/logstash-filter-useragent/pull/59)
+
 ## 3.2.3
  - Update source mapping to latest from uap-core ([#53](https://github.com/logstash-plugins/logstash-filter-useragent/issues/53))
 
