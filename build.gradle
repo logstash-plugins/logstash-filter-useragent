@@ -55,8 +55,7 @@ task wrapper(type: Wrapper) {
   gradleVersion = '3.5'
 }
 
-String yamlResourceRoot = 'https://raw.githubusercontent.com/ua-parser/uap-core/23bfabe34b86f29f4840c9dd1ef6129e685581e3'
-
+String yamlResourceRoot = 'https://raw.githubusercontent.com/ua-parser/uap-core/2e6c983e42e7aae7d957a263cb4d3de7ccbd92af'
 task downloadYaml(type: Download, overwrite: false) {
   src yamlResourceRoot + '/regexes.yaml'
   dest buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
@@ -79,7 +78,7 @@ task downloadTestYaml(type: Download, overwrite: false) {
 task verifyYaml(type: Verify, dependsOn: [downloadYaml, downloadTestYaml]) {
   src buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
   algorithm 'SHA1'
-  checksum '71e349c4e547939bd05240a2056cf335cbeabca0'
+  checksum '21d1f46ef68fc5b2dc7f20cc7b6bc5af63b5f55d'
 }
 
 dependencies {

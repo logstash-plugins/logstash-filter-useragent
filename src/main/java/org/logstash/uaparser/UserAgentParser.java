@@ -121,19 +121,33 @@ final class UserAgentParser {
             if (this.v1Replacement != null) {
                 v1 = this.v1Replacement;
             } else if (groupCount >= 2) {
-                v1 = this.matcher.group(2);
+                String group2 = this.matcher.group(2);
+                if (!isBlank(group2)) {
+                    v1 = group2;
+                }
             }
             String v3 = null;
             String v2 = null;
             if (this.v2Replacement != null) {
                 v2 = this.v2Replacement;
             } else if (groupCount >= 3) {
-                v2 = this.matcher.group(3);
+                String group3 = this.matcher.group(3);
+                if (!isBlank(group3)) {
+                    v2 = group3;
+                }
                 if (groupCount >= 4) {
-                    v3 = this.matcher.group(4);
+                    String group4 = this.matcher.group(4);
+                    if (!isBlank(group4)) {
+                        v3 = group4;
+                    }
                 }
             }
             return family == null ? null : new UserAgent(family, v1, v2, v3);
+        }
+
+        private boolean isBlank(String value) {
+            return value == null || value.isEmpty();
+
         }
     }
 }
