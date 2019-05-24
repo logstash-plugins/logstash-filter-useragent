@@ -22,6 +22,17 @@ describe LogStash::Filters::UserAgent do
       insist { subject.get("[ua][major]") } == "26"
       insist { subject.get("[ua][minor]") } == "0"
     end
+
+    sample "MacOutlook/16.24.0.190414 (Intelx64 Mac OS X Version 10.14.4 (Build 18E226))" do
+      insist { subject }.include?("ua")
+      insist { subject.get("[ua][name]") } == "MacOutlook"
+      insist { subject.get("[ua][major]") } == "16"
+      insist { subject.get("[ua][minor]") } == "24"
+      insist { subject.get("[ua][os]") } == "Mac OS X"
+      insist { subject.get("[ua][os_name]") } == "Mac OS X"
+      insist { subject.get("[ua][os_major]") } == "10"
+      insist { subject.get("[ua][os_minor]") } == "14"
+    end
   end
 
   describe "manually specified regexes file" do
