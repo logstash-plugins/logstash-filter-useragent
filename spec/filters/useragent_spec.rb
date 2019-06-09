@@ -33,6 +33,23 @@ describe LogStash::Filters::UserAgent do
       insist { subject.get("[ua][os_major]") } == "10"
       insist { subject.get("[ua][os_minor]") } == "14"
     end
+
+    # windows
+    sample "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246" do
+      insist { subject }.include?("ua")
+      insist { subject.get("[ua][os]") } == "Windows"
+      insist { subject.get("[ua][os_name]") } == "Windows"
+      insist { subject.get("[ua][os_major]") } == "8"
+      insist { subject.get("[ua][os_minor]") } == "1"
+    end
+
+    sample "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246" do
+      insist { subject }.include?("ua")
+      insist { subject.get("[ua][os]") } == "Windows"
+      insist { subject.get("[ua][os_name]") } == "Windows"
+      insist { subject.get("[ua][os_major]") } == "10"
+      insist { subject.get("[ua][os_minor]") } == nil
+    end
   end
 
   describe "manually specified regexes file" do

@@ -129,10 +129,8 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       event.set(@prefixed_os_name, os.family.dup.force_encoding(Encoding::UTF_8)) if os.family
 
       # These are all strings
-      if os.minor && os.major
-        event.set(@prefixed_os_major, os.major.dup.force_encoding(Encoding::UTF_8)) if os.major
-        event.set(@prefixed_os_minor, os.minor.dup.force_encoding(Encoding::UTF_8)) if os.minor
-      end
+      event.set(@prefixed_os_major, os.major.dup.force_encoding(Encoding::UTF_8)) if os.major
+      event.set(@prefixed_os_minor, os.minor.dup.force_encoding(Encoding::UTF_8)) if os.minor
     end
 
     event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
