@@ -89,7 +89,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     begin
       ua_data = lookup_useragent(useragent)
     rescue StandardError => e
-      @logger.error("Uknown error while parsing user agent data", :exception => e, :field => @source, :event => event)
+      @logger.error("Unknown error while parsing user agent data", :exception => e, :field => @source, :event => event)
       return
     end
 
