@@ -41,18 +41,14 @@ buildscript {
   }
 
   dependencies {
-    classpath group: 'org.jruby', name: 'jruby-complete', version: "1.7.26"
-    classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
+    classpath group: 'org.jruby', name: 'jruby-complete', version: "9.2.11.0"
+    classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
     classpath 'de.undercouch:gradle-download-task:3.2.0'
   }
 }
 
 repositories {
   mavenCentral()
-}
-
-task wrapper(type: Wrapper) {
-  gradleVersion = '3.5'
 }
 
 String yamlResourceRoot = 'https://raw.githubusercontent.com/ua-parser/uap-core/2e6c983e42e7aae7d957a263cb4d3de7ccbd92af'
@@ -110,10 +106,12 @@ shadowJar {
   classifier = null
 }
 
-task vendor(dependsOn: shadowJar) << {
-  String vendorPathPrefix = "vendor/jar-dependencies"
-  String projectGroupPath = project.group.replaceAll('\\.', '/')
-  File projectJarFile = file("${vendorPathPrefix}/${projectGroupPath}/${project.name}/${project.version}/${project.name}-${project.version}.jar")
-  projectJarFile.mkdirs()
-  Files.copy(file("$buildDir/libs/${project.name}-${project.version}.jar").toPath(), projectJarFile.toPath(), REPLACE_EXISTING)
+task vendor(dependsOn: shadowJar) {
+  doLast {
+    String vendorPathPrefix = "vendor/jar-dependencies"
+    String projectGroupPath = project.group.replaceAll('\\.', '/')
+    File projectJarFile = file("${vendorPathPrefix}/${projectGroupPath}/${project.name}/${project.version}/${project.name}-${project.version}.jar")
+    projectJarFile.mkdirs()
+    Files.copy(file("$buildDir/libs/${project.name}-${project.version}.jar").toPath(), projectJarFile.toPath(), REPLACE_EXISTING)
+  }
 }
