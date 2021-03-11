@@ -20,6 +20,8 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os]") ).to eql "Linux"
       expect( subject.get("[ua][major]") ).to eql "26"
       expect( subject.get("[ua][minor]") ).to eql "0"
+
+      expect( subject.get("[ua][minor]").encoding ).to eql Encoding::UTF8
     end
 
     sample "MacOutlook/16.24.0.190414 (Intelx64 Mac OS X Version 10.14.4 (Build 18E226))" do
@@ -31,6 +33,8 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
       expect( subject.get("[ua][os_major]") ).to eql "10"
       expect( subject.get("[ua][os_minor]") ).to eql "14"
+
+      expect( subject.get("[ua][os_minor]").encoding ).to eql Encoding::UTF8
     end
   end
 
@@ -133,6 +137,10 @@ describe LogStash::Filters::UserAgent do
 
         it "should dup/clone the field to prevent cache corruption" do
           expect(target_field.object_id).not_to eql(value.object_id)
+        end
+
+        it "should be an utf-8 string" do
+          expect(target_field.encoding).to be Encoding::UTF8
         end
       end
     end
