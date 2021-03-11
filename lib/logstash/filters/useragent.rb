@@ -99,18 +99,14 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     filter_matched(event)
   end
 
-  # should be private but need to stay public for specs
-  # TODO: (colin) the related specs should be refactored to not rely on private methods.
-  def lookup_useragent(useragent)
-    return unless useragent
+  private
 
+  def lookup_useragent(useragent)
     # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
     # caused by the underlying JRuby regex code that is not thread safe.
     # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
     @parser.parse(useragent)
   end
-
-  private
 
   def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
