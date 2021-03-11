@@ -117,31 +117,37 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
 
-    event.set(@prefixed_name, ua_data.userAgent.family.dup.force_encoding(Encoding::UTF_8))
+    event.set(@prefixed_name, duped_string(ua_data.userAgent.family))
 
     #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
     # Calls in here use #dup because there's potential for later filters to modify these values
     # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
-    if (os = ua_data.os)
+    os = ua_data.os
+    if os
       # The OS is a rich object
-      event.set(@prefixed_os, ua_data.os.family.dup.force_encoding(Encoding::UTF_8))
-      event.set(@prefixed_os_name, os.family.dup.force_encoding(Encoding::UTF_8)) if os.family
+      event.set(@prefixed_os, duped_string(os.family))
+      event.set(@prefixed_os_name, duped_string(os.family)) if os.family
 
       # These are all strings
       if os.minor && os.major
-        event.set(@prefixed_os_major, os.major.dup.force_encoding(Encoding::UTF_8)) if os.major
-        event.set(@prefixed_os_minor, os.minor.dup.force_encoding(Encoding::UTF_8)) if os.minor
+        event.set(@prefixed_os_major, duped_string(os.major)) if os.major
+        event.set(@prefixed_os_minor, duped_string(os.minor)) if os.minor
       end
     end
 
     event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
 
-    if (ua_version = ua_data.userAgent)
-      event.set(@prefixed_major, ua_version.major.dup.force_encoding(Encoding::UTF_8)) if ua_version.major
-      event.set(@prefixed_minor, ua_version.minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.minor
-      event.set(@prefixed_patch, ua_version.patch.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch
-      event.set(@prefixed_build, ua_version.patchMinor.dup.force_encoding(Encoding::UTF_8)) if ua_version.patchMinor
+    ua_version = ua_data.userAgent
+    if ua_version
+      event.set(@prefixed_major, duped_string(ua_version.major)) if ua_version.major
+      event.set(@prefixed_minor, duped_string(ua_version.minor)) if ua_version.minor
+      event.set(@prefixed_patch, duped_string(ua_version.patch)) if ua_version.patch
+      event.set(@prefixed_build, duped_string(ua_version.patchMinor)) if ua_version.patchMinor
     end
+  end
+
+  def duped_string(str)
+    str.dup.force_encoding(Encoding::UTF_8)
   end
 end
