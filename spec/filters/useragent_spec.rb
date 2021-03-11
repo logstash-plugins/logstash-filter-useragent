@@ -4,6 +4,10 @@ require "logstash/filters/useragent"
 
 describe LogStash::Filters::UserAgent do
 
+  subject { LogStash::Filters::UserAgent.new(options) }
+
+  let(:options) { { "source" => "foo" } }
+
   describe "defaults" do
     config <<-CONFIG
       filter {
@@ -94,21 +98,20 @@ describe LogStash::Filters::UserAgent do
     end
   end
 
-  describe "LRU object identity" do
-    let(:ua_string) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
-    let(:uafilter) { LogStash::Filters::UserAgent.new("source" => "foo") }
-    let(:ua_data) { uafilter.send :lookup_useragent, ua_string }
+  let(:ua_string) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
+  let(:event) { LogStash::Event.new("foo" => ua_string) }
 
-    subject(:target) { LogStash::Event.new("foo" => ua_string) }
+  describe "LRU object identity" do
+
+    let(:ua_data) { subject.send :lookup_useragent, ua_string }
 
     before do
-      uafilter.register
+      subject.register
 
       # Stub this out because this UA doesn't have this field
       allow(ua_data.userAgent).to receive(:patchMinor).and_return("foo")
 
-      # expect(event).receive(:lookup_useragent)
-      uafilter.filter(target)
+      subject.filter(event)
     end
 
     {
@@ -124,8 +127,8 @@ describe LogStash::Filters::UserAgent do
       "build" => lambda {|uad| uad.userAgent.patchMinor}
     }.each do |field, uad_getter|
       context "for the #{field} field" do
-        let(:value) {uad_getter.call(ua_data)}
-        let(:target_field) { target.get(field)}
+        let(:value) { uad_getter.call(ua_data) }
+        let(:target_field) { event.get(field) }
 
         it "should not have a nil value" do
           expect(target_field).to be_truthy
@@ -163,5 +166,19 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[message][major]") ).to eql "26"
       expect( subject.get("[message][minor]") ).to eql "0"
     end
+  end
+
+  context 'exception handling' do
+
+    before do
+      subject.register
+      expect(subject).to receive(:lookup_useragent).and_raise RuntimeError.new('this is a test')
+    end
+
+    it 'errors do not propagate' do
+      expect(subject.logger).to receive(:error).with(/Unknown error while parsing user agent data/, hash_including(exception: RuntimeError, message: 'this is a test'))
+      expect { subject.filter(event) }.not_to raise_error
+    end
+
   end
 end
