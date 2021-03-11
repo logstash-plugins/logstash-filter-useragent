@@ -1,7 +1,5 @@
 # encoding: utf-8
-
 require "logstash/devutils/rspec/spec_helper"
-require "insist"
 require "logstash/filters/useragent"
 
 describe LogStash::Filters::UserAgent do
@@ -17,22 +15,22 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject }.include?("ua")
-      insist { subject.get("[ua][name]") } == "Chrome"
-      insist { subject.get("[ua][os]") } == "Linux"
-      insist { subject.get("[ua][major]") } == "26"
-      insist { subject.get("[ua][minor]") } == "0"
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][name]") ).to eql "Chrome"
+      expect( subject.get("[ua][os]") ).to eql "Linux"
+      expect( subject.get("[ua][major]") ).to eql "26"
+      expect( subject.get("[ua][minor]") ).to eql "0"
     end
 
     sample "MacOutlook/16.24.0.190414 (Intelx64 Mac OS X Version 10.14.4 (Build 18E226))" do
-      insist { subject }.include?("ua")
-      insist { subject.get("[ua][name]") } == "MacOutlook"
-      insist { subject.get("[ua][major]") } == "16"
-      insist { subject.get("[ua][minor]") } == "24"
-      insist { subject.get("[ua][os]") } == "Mac OS X"
-      insist { subject.get("[ua][os_name]") } == "Mac OS X"
-      insist { subject.get("[ua][os_major]") } == "10"
-      insist { subject.get("[ua][os_minor]") } == "14"
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][name]") ).to eql "MacOutlook"
+      expect( subject.get("[ua][major]") ).to eql "16"
+      expect( subject.get("[ua][minor]") ).to eql "24"
+      expect( subject.get("[ua][os]") ).to eql "Mac OS X"
+      expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
+      expect( subject.get("[ua][os_major]") ).to eql "10"
+      expect( subject.get("[ua][os_minor]") ).to eql "14"
     end
   end
 
@@ -48,11 +46,11 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject }.include?("ua")
-      insist { subject.get("[ua][name]") } == "Chrome"
-      insist { subject.get("[ua][os]") } == "Linux"
-      insist { subject.get("[ua][major]") } == "26"
-      insist { subject.get("[ua][minor]") } == "0"
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][name]") ).to eql "Chrome"
+      expect( subject.get("[ua][os]") ).to eql "Linux"
+      expect( subject.get("[ua][major]") ).to eql "26"
+      expect( subject.get("[ua][minor]") ).to eql "0"
     end
   end
   
@@ -66,10 +64,10 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject.get("name") } == "Chrome"
-      insist { subject.get("os") } == "Linux"
-      insist { subject.get("major") } == "26"
-      insist { subject.get("minor") } == "0"
+      expect( subject.get("name") ).to eql "Chrome"
+      expect( subject.get("os") ).to eql "Linux"
+      expect( subject.get("major") ).to eql "26"
+      expect( subject.get("minor") ).to eql "0"
     end
   end
 
@@ -84,11 +82,11 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "foo" => "bar" do
-      reject { subject }.include?("ua")
+      expect( subject.to_hash ).to_not include("ua")
     end
 
     sample "" do
-      reject { subject }.include?("ua")
+      expect( subject.to_hash ).to_not include("ua")
     end
   end
 
@@ -151,11 +149,11 @@ describe LogStash::Filters::UserAgent do
     CONFIG
 
     sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-      insist { subject.to_hash }.include?("message")
-      insist { subject.get("[message][name]") } == "Chrome"
-      insist { subject.get("[message][os]") } == "Linux"
-      insist { subject.get("[message][major]") } == "26"
-      insist { subject.get("[message][minor]") } == "0"
+      expect( subject.to_hash ).to include("message")
+      expect( subject.get("[message][name]") ).to eql "Chrome"
+      expect( subject.get("[message][os]") ).to eql "Linux"
+      expect( subject.get("[message][major]") ).to eql "26"
+      expect( subject.get("[message][minor]") ).to eql "0"
     end
   end
 end
