@@ -1,9 +1,7 @@
 # encoding: utf-8
-require "java"
 require "logstash-filter-useragent_jars"
 require "logstash/filters/base"
 require "logstash/namespace"
-require "tempfile"
 require "thread"
 
 # Parse user agent strings into structured data based on BrowserScope data
