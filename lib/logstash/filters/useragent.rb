@@ -53,14 +53,8 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # number of cache misses and waste memory.
   config :lru_cache_size, :validate => :number, :default => 100_000
 
-  def register
-
-    if @regexes.nil?
-      @parser = org.logstash.uaparser.CachingParser.new(lru_cache_size)
-    else
-      @logger.debug("Using user agent regexes", :regexes => @regexes)
-      @parser = org.logstash.uaparser.CachingParser.new(@regexes, lru_cache_size)
-    end
+  def initialize(*params)
+    super
 
     # make @target in the format [field name] if defined, i.e. surrounded by brakets
     normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
@@ -76,6 +70,15 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
     @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
     @prefixed_build = "#{normalized_target}[#{@prefix}build]"
+  end
+
+  def register
+    if @regexes.nil?
+      @parser = org.logstash.uaparser.CachingParser.new(lru_cache_size)
+    else
+      @logger.debug("Using user agent regexes", :regexes => @regexes)
+      @parser = org.logstash.uaparser.CachingParser.new(@regexes, lru_cache_size)
+    end
   end
 
   def filter(event)
