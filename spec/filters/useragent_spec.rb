@@ -26,7 +26,7 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][minor]") ).to eql "0"
       expect( subject.get("[ua][device]") ).to eql "Other"
 
-      expect( subject.get("[ua][minor]").encoding ).to eql Encoding::UTF8
+      expect( subject.get("[ua][minor]").encoding ).to eql Encoding::UTF_8
     end
 
     sample "MacOutlook/16.24.0.190414 (Intelx64 Mac OS X Version 10.14.4 (Build 18E226))" do
@@ -40,7 +40,7 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os_minor]") ).to eql '2'
       expect( subject.get("[ua][device]") ).to eql 'Mac'
 
-      expect( subject.get("[ua][os_major]").encoding ).to eql Encoding::UTF8
+      expect( subject.get("[ua][os_major]").encoding ).to eql Encoding::UTF_8
     end
 
     # IE7 Vista
@@ -51,7 +51,7 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os_minor]") ).to be nil
       expect( subject.get("[ua][device]") ).to eql 'Other'
 
-      expect( subject.get("[ua][device]").encoding ).to eql Encoding::UTF8
+      expect( subject.get("[ua][device]").encoding ).to eql Encoding::UTF_8
     end
 
     # IE8 XP
@@ -195,7 +195,7 @@ describe LogStash::Filters::UserAgent do
         end
 
         it "should be an utf-8 string" do
-          expect(target_field.encoding).to be Encoding::UTF8
+          expect(target_field.encoding.name).to eql 'UTF-8'
         end
       end
     end
