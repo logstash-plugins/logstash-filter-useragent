@@ -100,7 +100,7 @@ describe LogStash::Filters::UserAgent do
       filter {
         useragent {
           source => "message"
-          target => "ua"
+          target => "[ua]"
           regexes => "build/resources/main/regexes.yaml"
         }
       }
@@ -129,6 +129,25 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("os") ).to eql "Linux"
       expect( subject.get("major") ).to eql "26"
       expect( subject.get("minor") ).to eql "0"
+    end
+  end
+
+  describe "nested target field" do
+    config <<-CONFIG
+      filter {
+        useragent {
+          source => "message"
+          target => "[foo][bar]"
+        }
+      }
+    CONFIG
+
+    # Facebook App User Agent
+    sample "Mozilla/5.0 (iPhone; CPU iPhone OS 13_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) " +
+           "Mobile/15E148 [FBAN/FBIOS;FBDV/iPhone11,8;FBMD/iPhone;FBSN/iOS;FBSV/13.3.1;FBSS/2;FBID/phone;FBLC/en_US;FBOP/5;FBCR/]" do
+      expect( subject ).to include 'foo'
+      expect( subject.get('foo') ).to include 'bar'
+      expect( subject.get('foo')['bar'] ).to include "name" => "Facebook", "device" => "iPhone", "os" => "iOS"
     end
   end
 

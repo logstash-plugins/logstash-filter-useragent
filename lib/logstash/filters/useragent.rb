@@ -56,19 +56,20 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   def initialize(*params)
     super
 
-    # make @target in the format [field name] if defined, i.e. surrounded by brakets
-    normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
+    # make @target in the format [field name] if defined, i.e. surrounded by brackets
+    target = @target || ''
+    target = "[#{@target}]" if !target.empty? && target !~ /^\[[^\[\]]+\]$/
 
     # predefine prefixed field names
-    @prefixed_name = "#{normalized_target}[#{@prefix}name]"
-    @prefixed_os = "#{normalized_target}[#{@prefix}os]"
-    @prefixed_os_name = "#{normalized_target}[#{@prefix}os_name]"
-    @prefixed_os_major = "#{normalized_target}[#{@prefix}os_major]"
-    @prefixed_os_minor = "#{normalized_target}[#{@prefix}os_minor]"
-    @prefixed_device = "#{normalized_target}[#{@prefix}device]"
-    @prefixed_major = "#{normalized_target}[#{@prefix}major]"
-    @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
-    @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
+    @prefixed_name = "#{target}[#{@prefix}name]"
+    @prefixed_os = "#{target}[#{@prefix}os]"
+    @prefixed_os_name = "#{target}[#{@prefix}os_name]"
+    @prefixed_os_major = "#{target}[#{@prefix}os_major]"
+    @prefixed_os_minor = "#{target}[#{@prefix}os_minor]"
+    @prefixed_device = "#{target}[#{@prefix}device]"
+    @prefixed_major = "#{target}[#{@prefix}major]"
+    @prefixed_minor = "#{target}[#{@prefix}minor]"
+    @prefixed_patch = "#{target}[#{@prefix}patch]"
   end
 
   def register
