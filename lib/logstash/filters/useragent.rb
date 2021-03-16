@@ -69,7 +69,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     @prefixed_major = "#{normalized_target}[#{@prefix}major]"
     @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
     @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
-    @prefixed_build = "#{normalized_target}[#{@prefix}build]"
   end
 
   def register
