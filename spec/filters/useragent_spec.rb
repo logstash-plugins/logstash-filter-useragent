@@ -36,9 +36,9 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][minor]") ).to eql "24"
       expect( subject.get("[ua][os]") ).to eql "Mac OS X"
       expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
-      expect( subject.get("[ua][os_major]") ).to eql "10"
-      expect( subject.get("[ua][os_minor]") ).to eql "14"
-      expect( subject.get("[ua][device]") ).to eql 'Other'
+      expect( subject.get("[ua][os_major]") ).to eql '18' # macOS v10.14.X (Mojave)
+      expect( subject.get("[ua][os_minor]") ).to eql '2'
+      expect( subject.get("[ua][device]") ).to eql 'Mac'
 
       expect( subject.get("[ua][os_major]").encoding ).to eql Encoding::UTF8
     end
@@ -80,7 +80,7 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os]") ).to eql "Windows"
       expect( subject.get("[ua][os_major]") ).to eql '10'
       expect( subject.get("[ua][os_minor]") ).to be nil
-      expect( subject.get("[ua][name]") ).to eql 'Chrome' # TODO can not detect 'new' Edge
+      expect( subject.get("[ua][name]") ).to eql 'Edge'
       expect( subject.get("[ua][device]") ).to eql 'Other'
     end
 
