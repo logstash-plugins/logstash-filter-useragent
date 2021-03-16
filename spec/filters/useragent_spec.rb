@@ -24,6 +24,7 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os]") ).to eql "Linux"
       expect( subject.get("[ua][major]") ).to eql "26"
       expect( subject.get("[ua][minor]") ).to eql "0"
+      expect( subject.get("[ua][device]") ).to eql "Other"
 
       expect( subject.get("[ua][minor]").encoding ).to eql Encoding::UTF8
     end
@@ -37,8 +38,60 @@ describe LogStash::Filters::UserAgent do
       expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
       expect( subject.get("[ua][os_major]") ).to eql "10"
       expect( subject.get("[ua][os_minor]") ).to eql "14"
+      expect( subject.get("[ua][device]") ).to eql 'Other'
 
-      expect( subject.get("[ua][os_minor]").encoding ).to eql Encoding::UTF8
+      expect( subject.get("[ua][os_major]").encoding ).to eql Encoding::UTF8
+    end
+
+    # IE7 Vista
+    sample "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)" do
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][os]") ).to eql "Windows"
+      expect( subject.get("[ua][os_major]") ).to eql 'Vista'
+      expect( subject.get("[ua][os_minor]") ).to be nil
+      expect( subject.get("[ua][device]") ).to eql 'Other'
+
+      expect( subject.get("[ua][device]").encoding ).to eql Encoding::UTF8
+    end
+
+    # IE8 XP
+    sample "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.1; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.5.30729)" do
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][os]") ).to eql 'Windows'
+      expect( subject.get("[ua][os_major]") ).to eql 'XP'
+      expect( subject.get("[ua][os_minor]") ).to be nil
+      expect( subject.get("[ua][name]") ).to eql 'IE'
+      expect( subject.get("[ua][device]") ).to eql 'Other'
+    end
+
+    # Windows 8.1
+    sample "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36 Edge/12.246" do
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][os]") ).to eql 'Windows'
+      expect( subject.get("[ua][os_major]") ).to eql '8'
+      expect( subject.get("[ua][os_minor]") ).to eql '1'
+      expect( subject.get("[ua][name]") ).to eql 'Edge'
+      expect( subject.get("[ua][device]") ).to eql 'Other'
+    end
+
+    # Windows 10
+    sample "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36 Edg/89.0.774.50" do
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][os]") ).to eql "Windows"
+      expect( subject.get("[ua][os_major]") ).to eql '10'
+      expect( subject.get("[ua][os_minor]") ).to be nil
+      expect( subject.get("[ua][name]") ).to eql 'Chrome' # TODO can not detect 'new' Edge
+      expect( subject.get("[ua][device]") ).to eql 'Other'
+    end
+
+    # Chrome on Linux
+    sample "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36" do
+      expect( subject.to_hash ).to include("ua")
+      expect( subject.get("[ua][os]") ).to eql "Linux"
+      expect( subject.get("[ua][os_major]") ).to be nil
+      expect( subject.get("[ua][os_minor]") ).to be nil
+      expect( subject.get("[ua][name]") ).to eql 'Chrome'
+      expect( subject.get("[ua][device]") ).to eql 'Other'
     end
   end
 

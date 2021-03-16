@@ -119,8 +119,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     event.set(@prefixed_name, duped_string(ua_data.userAgent.family))
     event.set(@prefixed_device, duped_string(ua_data.device)) if ua_data.device
 
-    #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
-
     os = ua_data.os
     if os
       # The OS is a rich object
@@ -128,10 +126,9 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       event.set(@prefixed_os_name, duped_string(os.family)) if os.family
 
       # These are all strings
-      if os.minor && os.major
-        event.set(@prefixed_os_major, duped_string(os.major)) if os.major
-        event.set(@prefixed_os_minor, duped_string(os.minor)) if os.minor
-      end
+      major, minor = os.major, os.minor
+      event.set(@prefixed_os_major, duped_string(major)) if major # e.g. 'Vista' or '10'
+      event.set(@prefixed_os_minor, duped_string(minor)) if minor
     end
 
     ua_version = ua_data.userAgent
