@@ -34,12 +34,6 @@ public final class UserAgent {
 
     public final String patch;
 
-    /**
-     * Placeholder: Currently unused by the Java code itself but part of the existing Ruby spec.
-     * @todo Refactor RSpec code to not need a mockable field on this class
-     */
-    public final String patchMinor = "";
-
     public UserAgent(String family, String major, String minor, String patch) {
         this.family = family;
         this.major = major;

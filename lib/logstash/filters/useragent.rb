@@ -139,7 +139,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       event.set(@prefixed_major, duped_string(ua_version.major)) if ua_version.major
       event.set(@prefixed_minor, duped_string(ua_version.minor)) if ua_version.minor
       event.set(@prefixed_patch, duped_string(ua_version.patch)) if ua_version.patch
-      event.set(@prefixed_build, duped_string(ua_version.patchMinor)) if ua_version.patchMinor
     end
   end
 

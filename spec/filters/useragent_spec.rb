@@ -124,7 +124,6 @@ describe LogStash::Filters::UserAgent do
       "major" => lambda {|uad| uad.userAgent.major},
       "minor" => lambda {|uad| uad.userAgent.minor},
       "patch" => lambda {|uad| uad.userAgent.patch},
-      "build" => lambda {|uad| uad.userAgent.patchMinor}
     }.each do |field, uad_getter|
       context "for the #{field} field" do
         let(:value) { uad_getter.call(ua_data) }
