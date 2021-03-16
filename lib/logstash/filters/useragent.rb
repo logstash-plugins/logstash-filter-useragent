@@ -117,6 +117,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     # UserAgentParser outputs as US-ASCII.
 
     event.set(@prefixed_name, duped_string(ua_data.userAgent.family))
+    event.set(@prefixed_device, duped_string(ua_data.device)) if ua_data.device
 
     #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
 
@@ -132,8 +133,6 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
         event.set(@prefixed_os_minor, duped_string(os.minor)) if os.minor
       end
     end
-
-    event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
 
     ua_version = ua_data.userAgent
     if ua_version
