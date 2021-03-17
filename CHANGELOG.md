@@ -1,7 +1,15 @@
-## 3.3.0
+## 3.3.0 (pending)
  - Fix: capture os major version + update UA regexes [#69](https://github.com/logstash-plugins/logstash-filter-useragent/pull/69)
-   * plugin no longer sets the `[build]` UA version field which is not implemented and was always `""`
-   * the UA parser *regexes.yaml* update will cause accurate detection of recent user agent strings 
+
+   The UA parser *regexes.yaml* update will cause accurate detection of recent user agent strings.
+
+   NOTE: The update might cause changes in (more accurately) matching UA fields such as `name` or OS 
+   version (for example, the old regexes did not support `Edge` and detect it as `Chrome`).
+   If needed the old behavior can be restored by downloading the outdated [regexes.yaml](https://raw.githubusercontent.com/ua-parser/uap-core/2e6c983e42e7aae7d957a263cb4d3de7ccbd92af/regexes.yaml) 
+   and configuring `regexes => path/to/regexes.yaml`.
+
+ - Plugin no longer sets the `[build]` UA version field which is not implemented and was always `""`.
+ - Fix: `target => [field]` configuration, which wasn't working previously
 
 ## 3.2.4
  - Added support for OS regular expressions that use backreferences [#59](https://github.com/logstash-plugins/logstash-filter-useragent/pull/59)
