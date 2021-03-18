@@ -1,10 +1,10 @@
 ## 3.3.0 (pending)
  - Fix: capture os major version + update UA regexes [#69](https://github.com/logstash-plugins/logstash-filter-useragent/pull/69)
 
-   The UA parser *regexes.yaml* update will cause accurate detection of recent user agent strings.
+   The UA parser *regexes.yaml* update (to **v0.12.0**) will accurately detect recent user agent strings.
 
-   NOTE: The update might cause changes in (more accurately) matching UA fields such as `name` or OS 
-   version (for example, the old regexes did not support `Edge` and detect it as `Chrome`).
+   NOTE: The update might cause changes in matching user agent fields such as `name` 
+   (for example, the previous version did not support `Edge` and detect it as `Chrome`).
    If needed the old behavior can be restored by downloading the outdated [regexes.yaml](https://raw.githubusercontent.com/ua-parser/uap-core/2e6c983e42e7aae7d957a263cb4d3de7ccbd92af/regexes.yaml) 
    and configuring `regexes => path/to/regexes.yaml`.
 
