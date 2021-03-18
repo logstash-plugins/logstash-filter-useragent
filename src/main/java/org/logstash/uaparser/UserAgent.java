@@ -34,14 +34,22 @@ public final class UserAgent {
 
     public final String patch;
 
-    public UserAgent(String family, String major, String minor, String patch) {
+    public final String patchMinor;
+
+    public UserAgent(String family, String major, String minor, String patch, String patchMinor) {
         this.family = family;
         this.major = major;
         this.minor = minor;
         this.patch = patch;
+        this.patchMinor = patchMinor;
     }
 
-    public static UserAgent fromMap(Map<String, String> m) {
+    UserAgent(String family, String major, String minor, String patch) {
+        this(family, major, minor, patch, null);
+    }
+
+    // test-only
+    static UserAgent fromMap(Map<String, String> m) {
         return new UserAgent(m.get("family"), m.get("major"), m.get("minor"), m.get("patch"));
     }
 
@@ -53,7 +61,8 @@ public final class UserAgent {
         return ((this.family != null && this.family.equals(o.family)) || this.family == o.family) &&
             ((this.major != null && this.major.equals(o.major)) || this.major == o.major) &&
             ((this.minor != null && this.minor.equals(o.minor)) || this.minor == o.minor) &&
-            ((this.patch != null && this.patch.equals(o.patch)) || this.patch == o.patch);
+            ((this.patch != null && this.patch.equals(o.patch)) || this.patch == o.patch) &&
+            ((this.patchMinor != null && this.patchMinor.equals(o.patchMinor)) || this.patchMinor == o.patchMinor);
     }
 
     @Override
@@ -62,17 +71,19 @@ public final class UserAgent {
         h += major == null ? 0 : major.hashCode();
         h += minor == null ? 0 : minor.hashCode();
         h += patch == null ? 0 : patch.hashCode();
+        h += patchMinor == null ? 0 : patchMinor.hashCode();
         return h;
     }
 
     @Override
     public String toString() {
         return String.format(
-            "{\"family\": %s, \"major\": %s, \"minor\": %s, \"patch\": %s}",
+            "{\"family\": %s, \"major\": %s, \"minor\": %s, \"patch\": %s, \"patchMinor\": %s}",
             family == null ? Constants.EMPTY_STRING : '"' + family + '"',
             major == null ? Constants.EMPTY_STRING : '"' + major + '"',
             minor == null ? Constants.EMPTY_STRING : '"' + minor + '"',
-            patch == null ? Constants.EMPTY_STRING : '"' + patch + '"'
+            patch == null ? Constants.EMPTY_STRING : '"' + patch + '"',
+            patchMinor == null ? Constants.EMPTY_STRING : '"' + patchMinor + '"'
         );
     }
 
