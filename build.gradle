@@ -52,9 +52,22 @@ repositories {
 }
 
 String yamlResourceRoot = 'https://raw.githubusercontent.com/ua-parser/uap-core/v0.12.0'
+def yamlTempDir = File.createTempDir()
+def yamlTempFile = yamlTempDir.toPath().resolve('regexes.yaml')
 task downloadYaml(type: Download, overwrite: false) {
   src yamlResourceRoot + '/regexes.yaml'
-  dest buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
+  dest yamlTempFile.toFile()
+}
+
+task patchYaml(type: Copy, dependsOn: [downloadYaml]) {
+  from yamlTempFile
+  into buildDir.toPath().resolve('resources/main')
+  filter { line ->
+    // work-around a 'regression' with extracting Mac OS version, without the '?'
+    // the pattern would extract major: '18', minor: '2' from agent strings like:
+    // "MacOutlook/16.24.0.190414 (Intelx64 Mac OS X Version 10.14.4 (Build 18E226))"
+    line.replace("- regex: 'Mac OS X\\s.{1,50}\\s(\\d+).(\\d+).(\\d+)'", "- regex: 'Mac OS X\\s.{1,50}?\\s(\\d+).(\\d+).(\\d+)'")
+  }
 }
 
 task downloadTestYaml(type: Download, overwrite: false) {
@@ -71,10 +84,10 @@ task downloadTestYaml(type: Download, overwrite: false) {
   dest buildDir.toPath().resolve('resources/test').toFile()
 }
 
-task verifyYaml(type: Verify, dependsOn: [downloadYaml, downloadTestYaml]) {
+task verifyYaml(type: Verify, dependsOn: [patchYaml, downloadTestYaml]) {
   src buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
   algorithm 'SHA1'
-  checksum '5438261b1ab97a73436c7babdf71e7202131f4e8'
+  checksum '5a8ea18a9c9153e83159b8662e3f6650fbca60a8' // after replacement
 }
 
 dependencies {
