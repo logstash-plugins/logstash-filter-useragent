@@ -7,7 +7,10 @@ describe LogStash::Filters::UserAgent do
 
   subject { LogStash::Filters::UserAgent.new(options) }
 
-  let(:options) { { "source" => "foo" } }
+  let(:options) { { 'source' => 'message' } }
+  let(:message) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
+
+  let(:event) { LogStash::Event.new('message' => message) }
 
   context 'with target', :ecs_compatibility_support do
     ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
@@ -287,7 +290,7 @@ describe LogStash::Filters::UserAgent do
       CONFIG
 
       sample "Mozilla/5.0 (X11; Linux i686) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.63 Safari/537.31" do
-        if ecs_compatibility?
+        if ecs_compatibility? # [user_agent] default target in ECS
           expect( subject.get("user_agent") ).to include 'name' => 'Chrome'
           expect( subject.get("user_agent") ).to include 'os' => hash_including('name' => 'Linux')
           expect( subject.get("user_agent") ).to include 'version' => '26.0.1410.63'
@@ -376,19 +379,62 @@ describe LogStash::Filters::UserAgent do
 
   end
 
-  let(:ua_string) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
-  let(:event) { LogStash::Event.new("foo" => ua_string) }
+  context "with prefix", :ecs_compatibility_support do
+    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+
+      let(:message) { 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0' }
+      let(:options) { super().merge('prefix' => 'pre_') }
+
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:ecs_compatibility).and_return(ecs_compatibility)
+      end
+
+      it 'works in legacy mode with prefix (without a warning)' do
+        expect( subject.logger ).to_not receive(:warn)
+        subject.register
+
+        subject.filter(event)
+
+        expect( event.to_hash ).to include('pre_name' => 'Firefox', 'pre_version' => '78.0')
+      end if ecs_select.active_mode == :disabled
+
+      it 'warns in ECS mode (and ignores prefix)' do
+        expect( subject.logger ).to receive(:warn).with /Field prefix isn't supported in ECS compatibility mode/
+        subject.register
+
+        subject.filter(event)
+
+        expect( event.to_hash.keys.find { |key| key.index('pre_') } ).to be nil
+        expect( event.get('user_agent').keys.find { |key| key.index('pre_') } ).to be nil
+        expect( event.get('user_agent') ).to include('name' => 'Firefox', 'version' => '78.0')
+      end if ecs_select.active_mode != :disabled
+
+    end
+  end
+
+  context "no prefix", :ecs_compatibility_support do
+    ecs_compatibility_matrix(:disabled, :v1) do
+
+      let(:message) { 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0' }
+
+      before(:each) do
+        allow_any_instance_of(described_class).to receive(:ecs_compatibility).and_return(ecs_compatibility)
+      end
+
+      it 'does not warn' do
+        expect( subject.logger ).to_not receive(:warn)
+        subject.register
+      end
+
+    end
+  end
 
   describe "LRU object identity" do
 
-    let(:ua_data) { subject.send :lookup_useragent, ua_string }
+    let(:ua_data) { subject.send :lookup_useragent, message }
 
     before do
       subject.register
-
-      # Stub this out because this UA doesn't have this field
-      allow(ua_data.userAgent).to receive(:patchMinor).and_return("foo")
-
       subject.filter(event)
     end
 

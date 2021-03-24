@@ -37,7 +37,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   config :regexes, :validate => :string
 
   # A string to prepend to all of the extracted keys
-  config :prefix, :validate => :string, :default => ''
+  config :prefix, :validate => :string, :default => '' # not supported in ECS mode
 
   # UA parsing is surprisingly expensive. This filter uses an LRU cache to take advantage of the fact that
   # user agents are often found adjacent to one another in log files and rarely have a random distribution.
@@ -91,6 +91,10 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   end
 
   def register
+    if ecs_compatibility != :disabled && @prefix && !@prefix.empty?
+      @logger.warn "Field prefix isn't supported in ECS compatibility mode, please remove `prefix => #{@prefix.inspect}`"
+    end
+
     if @regexes.nil?
       @parser = org.logstash.uaparser.CachingParser.new(lru_cache_size)
     else
