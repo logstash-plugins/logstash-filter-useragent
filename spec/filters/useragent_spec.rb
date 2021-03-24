@@ -203,7 +203,9 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][version]") ).to eql "89.0.774.50"
           expect( subject.get("[ua][os][full]") ).to eql "Windows 10"
           expect( subject.get("[ua][os][name]") ).to eql "Windows"
-          expect( subject.get("[ua][os][version]") ).to be nil
+          # NOTE: not really matching ECS requirement to be the original '10.0'
+          # tested ES 7.10 user_agent processor and it returns '10' as well
+          expect( subject.get("[ua][os][version]") ).to eql '10'
           ua_metadata = subject.get("[@metadata][filter][user_agent][os]")
           expect( ua_metadata ).to include 'version' => { 'major' => '10' }
           expect( subject.get("[ua][device][name]") ).to eql 'Other'
