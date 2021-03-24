@@ -86,6 +86,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][version]") ).to eql "12.0"
           expect( subject.get("[ua][os][full]") ).to eql "Mac OS X 10.14"
           expect( subject.get("[ua][os][name]") ).to eql "Mac OS X"
+          # TODO ES' user_agent processor fills os.version as '10.14'
           expect( subject.get("[ua][os][version]") ).to be nil # we reconstruct using '.' but UA contains '10_14'
           ua_metadata = subject.get("[@metadata][filter][user_agent][os]")
           expect( ua_metadata ).to include 'version' => { 'major' => '10', 'minor' => '14' }
@@ -171,6 +172,7 @@ describe LogStash::Filters::UserAgent do
         expect( subject.get("[ua][name]") ).to eql 'IE'
         if ecs_compatibility?
           expect( subject.get("[ua][os][name]") ).to eql 'Windows'
+          # NOTE: ES' user_agent fills in os.version as 'XP'
           expect( subject.get("[ua][os][version]") ).to be nil
           expect( subject.get("[ua][device][name]") ).to eql 'Other'
         else
@@ -187,6 +189,7 @@ describe LogStash::Filters::UserAgent do
         expect( subject.get("[ua][name]") ).to eql 'Edge'
         if ecs_compatibility?
           expect( subject.get("[ua][os][name]") ).to eql 'Windows'
+          # TODO ES' user_agent processor fills os.version as '8.1'
           expect( subject.get("[ua][os][version]") ).to be nil # should be '6.3'
         else
           expect( subject.get("[ua][os_name]") ).to eql 'Windows'
