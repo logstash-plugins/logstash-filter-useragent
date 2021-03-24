@@ -1,9 +1,7 @@
 # encoding: utf-8
-require "java"
 require "logstash-filter-useragent_jars"
 require "logstash/filters/base"
 require "logstash/namespace"
-require "tempfile"
 require "thread"
 
 # Parse user agent strings into structured data based on BrowserScope data
@@ -55,29 +53,32 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
   # number of cache misses and waste memory.
   config :lru_cache_size, :validate => :number, :default => 100_000
 
-  def register
+  def initialize(*params)
+    super
 
+    # make @target in the format [field name] if defined, i.e. surrounded by brackets
+    target = @target || ''
+    target = "[#{@target}]" if !target.empty? && target !~ /^\[[^\[\]]+\]$/
+
+    # predefine prefixed field names
+    @prefixed_name = "#{target}[#{@prefix}name]"
+    @prefixed_os = "#{target}[#{@prefix}os]"
+    @prefixed_os_name = "#{target}[#{@prefix}os_name]"
+    @prefixed_os_major = "#{target}[#{@prefix}os_major]"
+    @prefixed_os_minor = "#{target}[#{@prefix}os_minor]"
+    @prefixed_device = "#{target}[#{@prefix}device]"
+    @prefixed_major = "#{target}[#{@prefix}major]"
+    @prefixed_minor = "#{target}[#{@prefix}minor]"
+    @prefixed_patch = "#{target}[#{@prefix}patch]"
+  end
+
+  def register
     if @regexes.nil?
       @parser = org.logstash.uaparser.CachingParser.new(lru_cache_size)
     else
       @logger.debug("Using user agent regexes", :regexes => @regexes)
       @parser = org.logstash.uaparser.CachingParser.new(@regexes, lru_cache_size)
     end
-
-    # make @target in the format [field name] if defined, i.e. surrounded by brakets
-    normalized_target = (@target && @target !~ /^\[[^\[\]]+\]$/) ? "[#{@target}]" : ""
-
-    # predefine prefixed field names
-    @prefixed_name = "#{normalized_target}[#{@prefix}name]"
-    @prefixed_os = "#{normalized_target}[#{@prefix}os]"
-    @prefixed_os_name = "#{normalized_target}[#{@prefix}os_name]"
-    @prefixed_os_major = "#{normalized_target}[#{@prefix}os_major]"
-    @prefixed_os_minor = "#{normalized_target}[#{@prefix}os_minor]"
-    @prefixed_device = "#{normalized_target}[#{@prefix}device]"
-    @prefixed_major = "#{normalized_target}[#{@prefix}major]"
-    @prefixed_minor = "#{normalized_target}[#{@prefix}minor]"
-    @prefixed_patch = "#{normalized_target}[#{@prefix}patch]"
-    @prefixed_build = "#{normalized_target}[#{@prefix}build]"
   end
 
   def filter(event)
@@ -88,8 +89,10 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     begin
       ua_data = lookup_useragent(useragent)
-    rescue StandardError => e
-      @logger.error("Uknown error while parsing user agent data", :exception => e, :field => @source, :event => event)
+    rescue => e
+      @logger.error("Unknown error while parsing user agent data",
+                    :exception => e.class, :message => e.message, :backtrace => e.backtrace,
+                    :field => @source, :event => event.to_hash)
       return
     end
 
@@ -101,47 +104,45 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     filter_matched(event)
   end
 
-  # should be private but need to stay public for specs
-  # TODO: (colin) the related specs should be refactored to not rely on private methods.
-  def lookup_useragent(useragent)
-    return unless useragent
+  private
 
+  def lookup_useragent(useragent)
     # the UserAgentParser::Parser class is not thread safe, indications are that it is probably
     # caused by the underlying JRuby regex code that is not thread safe.
     # see https://github.com/logstash-plugins/logstash-filter-useragent/issues/25
     @parser.parse(useragent)
   end
 
-  private
-
   def set_fields(event, ua_data)
     # UserAgentParser outputs as US-ASCII.
 
-    event.set(@prefixed_name, ua_data.userAgent.family.dup.force_encoding(Encoding::UTF_8))
+    event.set(@prefixed_name, duped_string(ua_data.userAgent.family))
+    event.set(@prefixed_device, duped_string(ua_data.device)) if ua_data.device
 
-    #OSX, Android and maybe iOS parse correctly, ua-agent parsing for Windows does not provide this level of detail
-
-    # Calls in here use #dup because there's potential for later filters to modify these values
-    # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
-    if (os = ua_data.os)
+    os = ua_data.os
+    if os
       # The OS is a rich object
-      event.set(@prefixed_os, ua_data.os.family.dup.force_encoding(Encoding::UTF_8))
-      event.set(@prefixed_os_name, os.family.dup.force_encoding(Encoding::UTF_8)) if os.family
+      event.set(@prefixed_os, duped_string(os.family))
+      event.set(@prefixed_os_name, duped_string(os.family)) if os.family
 
       # These are all strings
-      if os.minor && os.major
-        event.set(@prefixed_os_major, os.major.dup.force_encoding(Encoding::UTF_8)) if os.major
-        event.set(@prefixed_os_minor, os.minor.dup.force_encoding(Encoding::UTF_8)) if os.minor
-      end
+      major, minor = os.major, os.minor
+      event.set(@prefixed_os_major, duped_string(major)) if major # e.g. 'Vista' or '10'
+      event.set(@prefixed_os_minor, duped_string(minor)) if minor
     end
 
-    event.set(@prefixed_device, ua_data.device.to_s.dup.force_encoding(Encoding::UTF_8)) if ua_data.device
-
-    if (ua_version = ua_data.userAgent)
-      event.set(@prefixed_major, ua_version.major.dup.force_encoding(Encoding::UTF_8)) if ua_version.major
-      event.set(@prefixed_minor, ua_version.minor.dup.force_encoding(Encoding::UTF_8)) if ua_version.minor
-      event.set(@prefixed_patch, ua_version.patch.dup.force_encoding(Encoding::UTF_8)) if ua_version.patch
-      event.set(@prefixed_build, ua_version.patchMinor.dup.force_encoding(Encoding::UTF_8)) if ua_version.patchMinor
+    ua_version = ua_data.userAgent
+    if ua_version
+      event.set(@prefixed_major, duped_string(ua_version.major)) if ua_version.major
+      event.set(@prefixed_minor, duped_string(ua_version.minor)) if ua_version.minor
+      event.set(@prefixed_patch, duped_string(ua_version.patch)) if ua_version.patch
     end
   end
+
+  def duped_string(str)
+    # Calls in here use #dup because there's potential for later filters to modify these values
+    # and corrupt the cache. See uap source here for details https://github.com/ua-parser/uap-ruby/tree/master/lib/user_agent_parser
+    str.dup.force_encoding(Encoding::UTF_8)
+  end
+
 end
