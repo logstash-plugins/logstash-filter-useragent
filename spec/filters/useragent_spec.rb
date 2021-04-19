@@ -86,8 +86,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][version]") ).to eql "12.0"
           expect( subject.get("[ua][os][full]") ).to eql "Mac OS X 10.14"
           expect( subject.get("[ua][os][name]") ).to eql "Mac OS X"
-          # TODO ES' user_agent processor fills os.version as '10.14'
-          expect( subject.get("[ua][os][version]") ).to be nil # we reconstruct using '.' but UA contains '10_14'
+          expect( subject.get("[ua][os][version]") ).to eql '10.14'
           ua_metadata = subject.get("[@metadata][filter][user_agent][os]")
           expect( ua_metadata ).to include 'version' => { 'major' => '10', 'minor' => '14' }
 
@@ -152,7 +151,7 @@ describe LogStash::Filters::UserAgent do
         expect( subject.to_hash ).to include("ua")
         if ecs_compatibility?
           expect( subject.get("[ua][os][name]") ).to eql "Windows"
-          expect( subject.get("[ua][os][version]") ).to be nil
+          expect( subject.get("[ua][os][version]") ).to eql 'Vista'
           expect( subject.get("[ua][device][name]") ).to eql 'Other'
 
           expect( subject.get("[ua][device][name]").encoding ).to eql Encoding::UTF_8
@@ -172,8 +171,7 @@ describe LogStash::Filters::UserAgent do
         expect( subject.get("[ua][name]") ).to eql 'IE'
         if ecs_compatibility?
           expect( subject.get("[ua][os][name]") ).to eql 'Windows'
-          # NOTE: ES' user_agent fills in os.version as 'XP'
-          expect( subject.get("[ua][os][version]") ).to be nil
+          expect( subject.get("[ua][os][version]") ).to eql 'XP'
           expect( subject.get("[ua][device][name]") ).to eql 'Other'
         else
           expect( subject.get("[ua][os_name]") ).to eql 'Windows'
@@ -189,8 +187,7 @@ describe LogStash::Filters::UserAgent do
         expect( subject.get("[ua][name]") ).to eql 'Edge'
         if ecs_compatibility?
           expect( subject.get("[ua][os][name]") ).to eql 'Windows'
-          # TODO ES' user_agent processor fills os.version as '8.1'
-          expect( subject.get("[ua][os][version]") ).to be nil # should be '6.3'
+          expect( subject.get("[ua][os][version]") ).to eql '8.1'
         else
           expect( subject.get("[ua][os_name]") ).to eql 'Windows'
           expect( subject.get("[ua][os_major]") ).to eql '8'
@@ -206,8 +203,6 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][version]") ).to eql "89.0.774.50"
           expect( subject.get("[ua][os][full]") ).to eql "Windows 10"
           expect( subject.get("[ua][os][name]") ).to eql "Windows"
-          # NOTE: not really matching ECS requirement to be the original '10.0'
-          # tested ES 7.10 user_agent processor and it returns '10' as well
           expect( subject.get("[ua][os][version]") ).to eql '10'
           ua_metadata = subject.get("[@metadata][filter][user_agent][os]")
           expect( ua_metadata ).to include 'version' => { 'major' => '10' }

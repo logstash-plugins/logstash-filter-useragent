@@ -151,9 +151,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       event.set(@os_minor_field, duped_string(os.minor)) if os.minor
       event.set(@os_patch_field, duped_string(os.patch)) if os.patch
       os_version = build_os_version(os)
-      verified_os_version = check_and_adjust_version(ua_source, os_version)
-      # only set OS version if it's not 'interpreted' (contained in UA string)
-      event.set(@os_version_field, verified_os_version) if verified_os_version
+      event.set(@os_version_field, os_version) if os_version
 
       os_name = os.family
       if os_name
