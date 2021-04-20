@@ -32,61 +32,27 @@ with an Apache 2.0 license. For more details on ua-parser, see
 ==== Compatibility with the Elastic Common Schema (ECS)
 
 This plugin can be used to parse user-agent (UA) _into_ fields compliant with the Elastic Common Schema.
-It can also be used _without_ ECS, the field mapping differs when ECS is disabled:
+Here's how
+<<plugins-{type}s-{plugin}-ecs_compatibility,ECS compatibility mode>> affects
+output.
 
 [cols="<l,<l,e,<e"]
 |=======================================================================
-|ECS v1 |ECS disabled |Description |Notes
+|ECS disabled |ECS v1 |Description |Notes
 
-|[user_agent][name]      |[name]    |Detected UA name |
-|[user_agent][version]   | N/A      |Detected UA version |Only available in ECS mode
-|[@metadata][filter][user_agent][version][major] |[major]  |UA major version |Only as meta-data in ECS mode
-|[@metadata][filter][user_agent][version][minor] |[minor]  |UA minor version |Only as meta-data in ECS mode
-|[@metadata][filter][user_agent][version][minor] |[patch]  |UA patch version |Only as meta-data in ECS mode
-|[user_agent][os][name]  |[os_name] |Detected operating-system name |
-|[user_agent][os][version]  | N/A |Detected OS version |Only available in ECS mode
-|[@metadata][filter][user_agent][os][version][major] |[os_major]  |OS major version |Only as meta-data in ECS mode
-|[@metadata][filter][user_agent][os][version][minor] |[os_minor]  |OS minor version |Only as meta-data in ECS mode
-|[@metadata][filter][user_agent][os][version][patch] |[os_patch]  |OS patch version |Only as meta-data in ECS mode
-|[user_agent][os][full]  |[os]      |Full operating-system name |
-|[user_agent][device][name]  |[device]  |Device name |
-
+|[name]     |[user_agent][name]                                  |Detected UA name |
+| N/A       |[user_agent][version]                               |Detected UA version |Only available in ECS mode
+|[major]    |[@metadata][filter][user_agent][version][major]     |UA major version |Only as meta-data in ECS mode
+|[minor]    |[@metadata][filter][user_agent][version][minor]     |UA minor version |Only as meta-data in ECS mode
+|[patch]    |[@metadata][filter][user_agent][version][minor]     |UA patch version |Only as meta-data in ECS mode
+|[os_name]  |[user_agent][os][name]                              |Detected operating-system name |
+| N/A       |[user_agent][os][version]                           |Detected OS version |Only available in ECS mode
+|[os_major] |[@metadata][filter][user_agent][os][version][major] |OS major version |Only as meta-data in ECS mode
+|[os_minor] |[@metadata][filter][user_agent][os][version][minor] |OS minor version |Only as meta-data in ECS mode
+|[os_patch] |[@metadata][filter][user_agent][os][version][patch] |OS patch version |Only as meta-data in ECS mode
+|[os]       |[user_agent][os][full]                              |Full operating-system name |
+|[device]   |[user_agent][device][name]                          |Device name |
 |=======================================================================
-
-[id="plugins-{type}s-{plugin}-options"]
-==== Useragent Filter Configuration Options
-
-This plugin supports the following configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
-
-[cols="<,<,<",options="header",]
-|=======================================================================
-|Setting |Input type|Required
-| <<plugins-{type}s-{plugin}-ecs_compatibility>> |<<string,string>>|No
-| <<plugins-{type}s-{plugin}-lru_cache_size>> |<<number,number>>|No
-| <<plugins-{type}s-{plugin}-prefix>> |<<string,string>>|No
-| <<plugins-{type}s-{plugin}-regexes>> |<<string,string>>|No
-| <<plugins-{type}s-{plugin}-source>> |<<string,string>>|Yes
-| <<plugins-{type}s-{plugin}-target>> |<<string,string>>|No
-|=======================================================================
-
-Also see <<plugins-{type}s-{plugin}-common-options>> for a list of options supported by all
-filter plugins.
-
-&nbsp;
-
-[id="plugins-{type}s-{plugin}-ecs_compatibility"]
-===== `ecs_compatibility`
-
-* Value type is <<string,string>>
-* Supported values are:
-** `disabled`: does not use ECS-compatible field names (fields might be set at the root of the event)
-** `v1`: uses fields that are compatible with Elastic Common Schema (for example, `[user_agent][version]`)
-* Default value depends on which version of Logstash is running:
-** When Logstash provides a `pipeline.ecs_compatibility` setting, its value is used as the default
-** Otherwise, the default value is `disabled`.
-
-Controls this plugin's compatibility with the {ecs-ref}[Elastic Common Schema (ECS)].
-The value of this setting affects the _default_ value of <<plugins-{type}s-{plugin}-target>>.
 
 Example:
 [source,ruby]
@@ -131,6 +97,41 @@ produces the following fields:
         }
     }
 -----
+
+[id="plugins-{type}s-{plugin}-options"]
+==== Useragent Filter Configuration Options
+
+This plugin supports the following configuration options plus the <<plugins-{type}s-{plugin}-common-options>> described later.
+
+[cols="<,<,<",options="header",]
+|=======================================================================
+|Setting |Input type|Required
+| <<plugins-{type}s-{plugin}-ecs_compatibility>> |<<string,string>>|No
+| <<plugins-{type}s-{plugin}-lru_cache_size>> |<<number,number>>|No
+| <<plugins-{type}s-{plugin}-prefix>> |<<string,string>>|No
+| <<plugins-{type}s-{plugin}-regexes>> |<<string,string>>|No
+| <<plugins-{type}s-{plugin}-source>> |<<string,string>>|Yes
+| <<plugins-{type}s-{plugin}-target>> |<<string,string>>|No
+|=======================================================================
+
+Also see <<plugins-{type}s-{plugin}-common-options>> for a list of options supported by all
+filter plugins.
+
+&nbsp;
+
+[id="plugins-{type}s-{plugin}-ecs_compatibility"]
+===== `ecs_compatibility`
+
+* Value type is <<string,string>>
+* Supported values are:
+** `disabled`: does not use ECS-compatible field names (fields might be set at the root of the event)
+** `v1`: uses fields that are compatible with Elastic Common Schema (for example, `[user_agent][version]`)
+* Default value depends on which version of Logstash is running:
+** When Logstash provides a `pipeline.ecs_compatibility` setting, its value is used as the default
+** Otherwise, the default value is `disabled`.
+
+Controls this plugin's compatibility with the {ecs-ref}[Elastic Common Schema (ECS)].
+The value of this setting affects the _default_ value of <<plugins-{type}s-{plugin}-target>>.
 
 [id="plugins-{type}s-{plugin}-lru_cache_size"]
 ===== `lru_cache_size` 
