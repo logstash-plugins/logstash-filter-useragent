@@ -50,7 +50,7 @@ output.
 |[os_major] |[@metadata][filter][user_agent][os][version][major] |OS major version |Only as meta-data in ECS mode
 |[os_minor] |[@metadata][filter][user_agent][os][version][minor] |OS minor version |Only as meta-data in ECS mode
 |[os_patch] |[@metadata][filter][user_agent][os][version][patch] |OS patch version |Only as meta-data in ECS mode
-|[os]       |[user_agent][os][full]                              |Full operating-system name |
+|[os_full]  |[user_agent][os][full]                              |Full operating-system name |
 |[device]   |[user_agent][device][name]                          |Device name |
 |=======================================================================
 
@@ -72,9 +72,9 @@ produces the following fields:
         "version"=>"45.0",
         "major"=>"45",
         "minor"=>"0",
-        "os"=>"Mac OS X 10.11"
         "os_name"=>"Mac OS X",
         "os_version"=>"10.11",
+        "os_full"=>"Mac OS X 10.11",
         "os_major"=>"10",
         "os_minor"=>"11",
         "device"=>"Mac"

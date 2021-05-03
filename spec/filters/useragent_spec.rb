@@ -44,6 +44,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua]").keys ).to_not include 'minor'
         else
           expect( subject.get("[ua][os_name]") ).to eql "Linux"
+          expect( subject.get("[ua][os_full]") ).to eql "Linux"
           expect( subject.get("[ua][os]") ).to eql "Linux"
           expect( subject.get("[ua][device]") ).to eql "Other"
           expect( subject.get("[ua][major]") ).to eql "26"
@@ -68,12 +69,13 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][major]") ).to eql "16"
           expect( subject.get("[ua][minor]") ).to eql "24"
           expect( subject.get("[ua][patch]") ).to eql "0"
-          expect( subject.get("[ua][os]") ).to eql "Mac OS X 10.14.4"
+          expect( subject.get("[ua][os_full]") ).to eql "Mac OS X 10.14.4"
           expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
           expect( subject.get("[ua][os_major]") ).to eql '10'
           expect( subject.get("[ua][os_minor]") ).to eql '14'
           expect( subject.get("[ua][device]") ).to eql 'Mac'
 
+          expect( subject.get("[ua][os]") ).to eql "Mac OS X"
           expect( subject.get("[ua][os]").encoding ).to eql Encoding::UTF_8
         end
       end
@@ -95,7 +97,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][major]") ).to eql "12"
           expect( subject.get("[ua][minor]") ).to eql "0"
           expect( subject.get("[ua][patch]") ).to be nil
-          expect( subject.get("[ua][os]") ).to eql "Mac OS X 10.14"
+          expect( subject.get("[ua][os_full]") ).to eql "Mac OS X 10.14"
           expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
           expect( subject.get("[ua][os_major]") ).to eql '10'
           expect( subject.get("[ua][os_minor]") ).to eql '14'
@@ -117,7 +119,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][major]") ).to eql "7"
           expect( subject.get("[ua][minor]") ).to eql "0"
           expect( subject.get("[ua][patch]") ).to eql "3"
-          expect( subject.get("[ua][os]") ).to eql "Mac OS X 10.9.3"
+          expect( subject.get("[ua][os_full]") ).to eql "Mac OS X 10.9.3"
           expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
           expect( subject.get("[ua][os_major]") ).to eql '10'
           expect( subject.get("[ua][os_minor]") ).to eql '9'
@@ -138,7 +140,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("[ua][major]") ).to eql "45"
           expect( subject.get("[ua][minor]") ).to eql "0"
           expect( subject.get("[ua][patch]") ).to be nil
-          expect( subject.get("[ua][os]") ).to eql "Mac OS X 10.11"
+          expect( subject.get("[ua][os_full]") ).to eql "Mac OS X 10.11"
           expect( subject.get("[ua][os_name]") ).to eql "Mac OS X"
           expect( subject.get("[ua][os_major]") ).to eql '10'
           expect( subject.get("[ua][os_minor]") ).to eql '11'
@@ -296,6 +298,7 @@ describe LogStash::Filters::UserAgent do
           expect( subject.get("user_agent") ).to include 'version' => '26.0.1410.63'
         else
           expect( subject.get("name") ).to eql "Chrome"
+          expect( subject.get("os_name") ).to eql "Linux"
           expect( subject.get("os") ).to eql "Linux"
           expect( subject.get("major") ).to eql "26"
           expect( subject.get("minor") ).to eql "0"

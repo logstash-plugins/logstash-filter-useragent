@@ -74,11 +74,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
     @minor_field = ecs_select[disabled: "#{target}[#{@prefix}minor]", v1: "[@metadata][filter][user_agent][version][minor]"]
     @patch_field = ecs_select[disabled: "#{target}[#{@prefix}patch]", v1: "[@metadata][filter][user_agent][version][patch]"]
 
-    @os_full_name_field = ecs_select[disabled: "[#{@prefix}os]", v1: '[os][full]']
+    @os_full_name_field = ecs_select[disabled: "[#{@prefix}os_full]", v1: '[os][full]'] # did not exist in legacy prior to ECS-ification
     @os_full_name_field = "#{target}#{@os_full_name_field}"
 
-    @os_name_field = ecs_select[disabled:"[#{@prefix}os_name]", v1: '[os][name]']
+    @os_name_field = ecs_select[disabled: "[#{@prefix}os_name]", v1: '[os][name]']
     @os_name_field = "#{target}#{@os_name_field}"
+    @legacy_os_field = ecs_select[disabled: "#{target}[#{@prefix}os]", v1: nil] # same as [os_name] in legacy mode
 
     @os_version_field = ecs_select[disabled: "[#{@prefix}os_version]", v1: '[os][version]']
     @os_version_field = "#{target}#{@os_version_field}"
@@ -157,6 +158,7 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
       if os_name
         os_name = duped_string(os_name)
         event.set(@os_name_field, os_name)
+        event.set(@legacy_os_field, os_name.dup) if @legacy_os_field
         os_full_name = os_name.dup
         os_full_name << ' ' << os_version if os_version
         event.set(@os_full_name_field, os_full_name)
