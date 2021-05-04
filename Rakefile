@@ -1,5 +1,4 @@
 require 'logstash/devutils/rake'
-require 'jars/installer'
 
 task :install_jars do
   sh('./gradlew clean vendor')
