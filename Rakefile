@@ -6,7 +6,7 @@ require 'logstash/devutils/rake'
 require 'jars/installer'
 
 task :install_jars do
-  system('./gradlew vendor')
+  exit(1) unless system './gradlew --no-daemon clean vendor'
 end
 
 task :vendor => :install_jars
