@@ -1,4 +1,6 @@
-## 3.3.0 (pending)
+## 3.3.0
+ - Feat: support ECS mode when setting UA fields [#68](https://github.com/logstash-plugins/logstash-filter-useragent/pull/68)
+ 
  - Fix: capture os major version + update UA regexes [#69](https://github.com/logstash-plugins/logstash-filter-useragent/pull/69)
 
    The UA parser *regexes.yaml* update (to **v0.12.0**) will accurately detect recent user agent strings.

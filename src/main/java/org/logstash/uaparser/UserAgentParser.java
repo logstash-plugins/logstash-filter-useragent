@@ -109,7 +109,7 @@ final class UserAgentParser {
             if (this.familyReplacement != null) {
                 if (this.familyContainsPos && groupCount >= 1 &&
                     this.matcher.group(1) != null) {
-                    family = UserAgentParser.UAPattern.FIRST_PATTERN.matcher(this.familyReplacement)
+                    family = FIRST_PATTERN.matcher(this.familyReplacement)
                         .replaceFirst(Matcher.quoteReplacement(this.matcher.group(1)));
                 } else {
                     family = this.familyReplacement;
@@ -121,33 +121,25 @@ final class UserAgentParser {
             if (this.v1Replacement != null) {
                 v1 = this.v1Replacement;
             } else if (groupCount >= 2) {
-                String group2 = this.matcher.group(2);
-                if (!isBlank(group2)) {
-                    v1 = group2;
-                }
+                v1 = nonBlank(matcher.group(2));
             }
-            String v3 = null;
-            String v2 = null;
+            String v2 = null, v3 = null, v4 = null;
             if (this.v2Replacement != null) {
                 v2 = this.v2Replacement;
             } else if (groupCount >= 3) {
-                String group3 = this.matcher.group(3);
-                if (!isBlank(group3)) {
-                    v2 = group3;
-                }
+                v2 = nonBlank(matcher.group(3));
                 if (groupCount >= 4) {
-                    String group4 = this.matcher.group(4);
-                    if (!isBlank(group4)) {
-                        v3 = group4;
+                    v3 = nonBlank(matcher.group(4));
+                    if (groupCount >= 5) {
+                        v4 = nonBlank(matcher.group(5));
                     }
                 }
             }
-            return family == null ? null : new UserAgent(family, v1, v2, v3);
+            return family == null ? null : new UserAgent(family, v1, v2, v3, v4);
         }
 
-        private boolean isBlank(String value) {
-            return value == null || value.isEmpty();
-
+        private static String nonBlank(String value) {
+            return (value == null || value.isEmpty()) ? null : value;
         }
     }
 }
