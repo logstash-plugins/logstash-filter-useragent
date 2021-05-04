@@ -62,6 +62,7 @@ task downloadYaml(type: Download, overwrite: false) {
 task patchYaml(type: Copy, dependsOn: [downloadYaml]) {
   from yamlTempFile
   into buildDir.toPath().resolve('resources/main')
+  filteringCharset 'UTF-8'
   filter { line ->
     // work-around a 'regression' with extracting Mac OS version, without the '?'
     // the pattern would extract major: '18', minor: '2' from agent strings like:
