@@ -44,7 +44,7 @@ output.
 | N/A       |[user_agent][version]                               |Detected UA version |Only available in ECS mode
 |[major]    |[@metadata][filter][user_agent][version][major]     |UA major version |Only as meta-data in ECS mode
 |[minor]    |[@metadata][filter][user_agent][version][minor]     |UA minor version |Only as meta-data in ECS mode
-|[patch]    |[@metadata][filter][user_agent][version][minor]     |UA patch version |Only as meta-data in ECS mode
+|[patch]    |[@metadata][filter][user_agent][version][patch]     |UA patch version |Only as meta-data in ECS mode
 |[os_name]  |[user_agent][os][name]                              |Detected operating-system name |
 | N/A       |[user_agent][os][version]                           |Detected OS version |Only available in ECS mode
 |[os_major] |[@metadata][filter][user_agent][os][version][major] |OS major version |Only as meta-data in ECS mode
