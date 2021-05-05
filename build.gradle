@@ -85,7 +85,7 @@ task downloadTestYaml(type: Download, overwrite: false) {
   dest buildDir.toPath().resolve('resources/test').toFile()
 }
 
-task verifyYaml(type: Verify, dependsOn: [patchYaml, downloadTestYaml]) {
+task verifyYaml(type: Verify, dependsOn: [patchYaml]) {
   src buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
   algorithm 'SHA1'
   checksum '5a8ea18a9c9153e83159b8662e3f6650fbca60a8' // after replacement
@@ -103,6 +103,7 @@ dependencies {
 
 test {
   dependsOn 'verifyYaml'
+  dependsOn 'downloadTestYaml'
   minHeapSize = "256m"
   maxHeapSize = "1024m"
 
@@ -116,7 +117,7 @@ test {
 apply plugin: 'com.github.johnrengelman.shadow'
 
 shadowJar {
-  dependsOn verifyYaml
+  dependsOn 'verifyYaml'
   classifier = null
 }
 
