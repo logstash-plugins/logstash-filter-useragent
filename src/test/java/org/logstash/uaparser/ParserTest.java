@@ -21,9 +21,7 @@ package org.logstash.uaparser;
 import static org.hamcrest.Matchers.is;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -156,7 +154,14 @@ public class ParserTest {
       if (testCase.containsKey("js_ua")) continue;
 
       String uaString = testCase.get("user_agent_string");
-      MatcherAssert.assertThat(uaString, parser.parseUserAgent(uaString), is(UserAgent.fromMap(testCase)));
+      UserAgent expect = UserAgent.fromMap(testCase);
+      UserAgent actual = parser.parseUserAgent(uaString);
+      // NOTE: the UA Java library does not (yet) parse patchMinor thus
+      // assert some of these WITHOUT patchMinor (like we did before) :
+      if (actual.patchMinor != null && expect.patchMinor == null) {
+        actual = new UserAgent(actual.family, actual.major, actual.minor, actual.patch);
+      }
+      MatcherAssert.assertThat(uaString, actual, is(expect));
     }
   }
 
