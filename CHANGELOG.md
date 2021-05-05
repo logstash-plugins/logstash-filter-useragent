@@ -1,4 +1,7 @@
-## 3.3.0
+## 3.3.1
+ - Fix: invalid 3.3.0 release which did not package correctly [#71](https://github.com/logstash-plugins/logstash-filter-useragent/pull/71)
+
+## 3.3.0 (invalid)
  - Feat: support ECS mode when setting UA fields [#68](https://github.com/logstash-plugins/logstash-filter-useragent/pull/68)
  
  - Fix: capture os major version + update UA regexes [#69](https://github.com/logstash-plugins/logstash-filter-useragent/pull/69)
