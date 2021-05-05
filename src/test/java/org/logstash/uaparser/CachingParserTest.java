@@ -17,6 +17,9 @@
  */
 package org.logstash.uaparser;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,14 +27,15 @@ import org.junit.Test;
  * These tests really only redo the same tests as in ParserTest but with a
  * different Parser subclass Also the same tests will be run several times on
  * the same user agents to validate the caching works correctly.
+ *
  * @author niels
+ *
  */
 public class CachingParserTest extends ParserTest {
 
-    @Override
     @Before
-    public void initParser() throws Exception {
-        this.parser = new CachingParser();
+    public void initParser() {
+        parser = new CachingParser();
     }
 
     @Override
@@ -40,59 +44,69 @@ public class CachingParserTest extends ParserTest {
     }
 
     @Test
+    public void testCachingParserCorrectSizeInit() {
+        parser = new CachingParser(10);
+    }
+
+    @Test (expected = java.lang.IllegalArgumentException.class)
+    public void testCachingParserIncorrectSizeInit() {
+        parser = new CachingParser(0);
+    }
+
+    @Test
     public void testCachedParseUserAgent() {
-        testParseUserAgent();
-        testParseUserAgent();
-        testParseUserAgent();
+        super.testParseUserAgent();
+        super.testParseUserAgent();
+        super.testParseUserAgent();
     }
 
     @Test
-    public void testCachedParseOS() throws Exception {
-        testParseOS();
-        testParseOS();
-        testParseOS();
+    public void testCachedParseOS() {
+        super.testParseOS();
+        super.testParseOS();
+        super.testParseOS();
     }
 
     @Test
-    public void testCachedParseAdditionalOS() throws Exception {
-        testParseAdditionalOS();
-        testParseAdditionalOS();
-        testParseAdditionalOS();
+    public void testCachedParseAdditionalOS() {
+        super.testParseAdditionalOS();
+        super.testParseAdditionalOS();
+        super.testParseAdditionalOS();
     }
 
     @Test
-    public void testCachedParseDevice() throws Exception {
-        testParseDevice();
-        testParseDevice();
-        testParseDevice();
+    public void testCachedParseDevice() {
+        super.testParseDevice();
+        super.testParseDevice();
+        super.testParseDevice();
     }
 
     @Test
     public void testCachedParseFirefox() {
-        testParseFirefox();
-        testParseFirefox();
-        testParseFirefox();
+        super.testParseFirefox();
+        super.testParseFirefox();
+        super.testParseFirefox();
     }
 
     @Test
     public void testCachedParsePGTS() {
-        testParsePGTS();
-        testParsePGTS();
-        testParsePGTS();
+        super.testParsePGTS();
+        super.testParsePGTS();
+        super.testParsePGTS();
     }
 
     @Test
     public void testCachedParseAll() {
-        testParseAll();
-        testParseAll();
-        testParseAll();
+        super.testParseAll();
+        super.testParseAll();
+        super.testParseAll();
     }
 
     @Test
     public void testCachedReplacementQuoting() throws Exception {
-        testReplacementQuoting();
-        testReplacementQuoting();
-        testReplacementQuoting();
+        super.testReplacementQuoting();
+        super.testReplacementQuoting();
+        super.testReplacementQuoting();
     }
 
 }
