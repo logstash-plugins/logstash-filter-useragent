@@ -1,3 +1,6 @@
+## Unreleased
+  - Fix: update to Gradle 7 [#75](https://github.com/logstash-plugins/logstash-filter-useragent/pull/75)
+
 ## 3.3.1
  - Fix: invalid 3.3.0 release which did not package correctly [#71](https://github.com/logstash-plugins/logstash-filter-useragent/pull/71)
 
