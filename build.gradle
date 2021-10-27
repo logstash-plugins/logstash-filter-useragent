@@ -25,7 +25,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING
  * under the License.
  */
 apply plugin: "java"
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: "distribution"
 apply plugin: "idea"
 
@@ -37,13 +37,13 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 buildscript {
   repositories {
     mavenCentral()
-    jcenter()
+    gradlePluginPortal()
   }
 
   dependencies {
     classpath group: 'org.jruby', name: 'jruby-complete', version: "9.2.11.0"
-    classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.4'
-    classpath 'de.undercouch:gradle-download-task:3.2.0'
+    classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
+    classpath 'de.undercouch:gradle-download-task:4.0.4'
   }
 }
 
@@ -85,20 +85,21 @@ task downloadTestYaml(type: Download, overwrite: false) {
   dest buildDir.toPath().resolve('resources/test').toFile()
 }
 
-task verifyYaml(type: Verify, dependsOn: [patchYaml]) {
+task verifyYaml(type: Verify, dependsOn: [patchYaml, processResources]) {
+  inputs.file("${buildDir}/resources/main/regexes.yaml")
   src buildDir.toPath().resolve('resources/main/regexes.yaml').toFile()
   algorithm 'SHA1'
   checksum '5a8ea18a9c9153e83159b8662e3f6650fbca60a8' // after replacement
 }
 
 dependencies {
-  compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
-  compile group: 'org.yaml', name: 'snakeyaml', version: '1.18'
-  compile group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
-  testCompile group: 'junit', name: 'junit', version: '4.12'
-  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
-  testRuntime group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-  testRuntime group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+  implementation group: 'org.apache.commons', name: 'commons-collections4', version: '4.1'
+  implementation group: 'org.yaml', name: 'snakeyaml', version: '1.18'
+  implementation group: 'commons-collections', name: 'commons-collections', version: '3.2.2'
+  testImplementation group: 'junit', name: 'junit', version: '4.12'
+  testImplementation group: 'org.hamcrest', name: 'hamcrest-all', version: '1.3'
+  testImplementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+  testImplementation group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
 }
 
 test {
@@ -118,7 +119,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 shadowJar {
   dependsOn 'verifyYaml'
-  classifier = null
+  archiveClassifier = null
 }
 
 task vendor(dependsOn: shadowJar) {
