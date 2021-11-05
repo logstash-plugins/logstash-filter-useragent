@@ -13,7 +13,7 @@ describe LogStash::Filters::UserAgent do
   let(:event) { LogStash::Event.new('message' => message) }
 
   context 'with target', :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
 
       let(:ecs_compatibility?) { ecs_select.active_mode != :disabled }
 
@@ -237,7 +237,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "manually specified regexes file", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
 
       let(:ecs_compatibility?) { ecs_select.active_mode != :disabled }
 
@@ -275,7 +275,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "without target field", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
 
       let(:ecs_compatibility?) { ecs_select.active_mode != :disabled }
 
@@ -310,7 +310,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "nested target field", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do
 
       before(:each) do
         allow_any_instance_of(described_class).to receive(:ecs_compatibility).and_return(ecs_compatibility)
@@ -337,7 +337,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "without user agent", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
 
       let(:ecs_compatibility?) { ecs_select.active_mode != :disabled }
 
@@ -383,7 +383,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "with prefix", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do |ecs_select|
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do |ecs_select|
 
       let(:message) { 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0' }
       let(:options) { super().merge('prefix' => 'pre_') }
@@ -402,7 +402,7 @@ describe LogStash::Filters::UserAgent do
       end if ecs_select.active_mode == :disabled
 
       it 'warns in ECS mode (and ignores prefix)' do
-        expect( subject.logger ).to receive(:warn).with /Field prefix isn't supported in ECS compatibility mode/
+        expect( subject.logger ).to receive(:warn).with %r{Field prefix isn't supported in ECS compatibility mode}
         subject.register
 
         subject.filter(event)
@@ -416,7 +416,7 @@ describe LogStash::Filters::UserAgent do
   end
 
   context "no prefix", :ecs_compatibility_support do
-    ecs_compatibility_matrix(:disabled, :v1) do
+    ecs_compatibility_matrix(:disabled, :v1, :v8 => :v1) do
 
       let(:message) { 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101 Firefox/78.0' }
 
