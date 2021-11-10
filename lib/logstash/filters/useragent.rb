@@ -14,7 +14,7 @@ require 'logstash/plugin_mixins/ecs_compatibility_support'
 # <https://github.com/tobie/ua-parser/>.
 class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
-  include LogStash::PluginMixins::ECSCompatibilitySupport(:disabled, :v1)
+  include LogStash::PluginMixins::ECSCompatibilitySupport(:disabled, :v1, :v8 => :v1)
 
   config_name "useragent"
 
