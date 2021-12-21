@@ -1,3 +1,6 @@
+## 3.3.3
+  - Docs: mention added fields in 3.3 with a note [#78](https://github.com/logstash-plugins/logstash-filter-useragent/pull/78)
+
 ## 3.3.2
   - Added preview of ECS-v8 support with existing ECS-v1 implementation [#76](https://github.com/logstash-plugins/logstash-filter-useragent/pull/76)
   - Internal: update to Gradle 7 [#75](https://github.com/logstash-plugins/logstash-filter-useragent/pull/75)
