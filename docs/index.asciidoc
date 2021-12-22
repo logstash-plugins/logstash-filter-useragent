@@ -38,7 +38,7 @@ output.
 
 [cols="<l,<l,e,<e"]
 |=======================================================================
-|ECS disabled |ECS v1 |Description |Notes
+|ECS disabled |ECS v1, v8 |Description |Notes
 
 |[name]        |[user_agent][name]                                  |Detected UA name |
 |[version]*    |[user_agent][version]                               |Detected UA version |Only available in ECS mode
