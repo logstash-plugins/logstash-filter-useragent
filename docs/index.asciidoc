@@ -54,7 +54,7 @@ output.
 |[device]      |[user_agent][device][name]                          |Device name |
 |=======================================================================
 
-NOTE: `[version]` and `[os_version]` fields were added in Logstash **7.14** and are not available by default in prior versions.
+NOTE: `[version]` and `[os_version]` fields were added in Logstash **7.14** and are not available by default in earlier versions.
 
 Example:
 [source,ruby]
