@@ -108,7 +108,8 @@ public class ParserTest {
     try {
       final Future<?>[] futures = new Future[threads];
       for (int i = 0; i < threads; ++i) {
-        futures[i] = exec.submit(() -> testParseUserAgent());
+        // NOTE: same as testParseUserAgent but we need to avoid shared this.yaml (instance) state
+        futures[i] = exec.submit(() -> testUserAgentFromYaml("test_ua.yaml", new Yaml()));
       }
       for (int i = 0; i < 3; ++i) {
         futures[i].get();
@@ -143,6 +144,10 @@ public class ParserTest {
   }
 
   void testUserAgentFromYaml(String filename) {
+    testUserAgentFromYaml(filename, yaml);
+  }
+
+  void testUserAgentFromYaml(String filename, final Yaml yaml) {
     InputStream yamlStream = this.getClass().getResourceAsStream(TEST_RESOURCE_PATH + filename);
 
     @SuppressWarnings("unchecked")

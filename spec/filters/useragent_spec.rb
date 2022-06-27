@@ -7,7 +7,7 @@ describe LogStash::Filters::UserAgent do
 
   subject { LogStash::Filters::UserAgent.new(options) }
 
-  let(:options) { { 'source' => 'message' } }
+  let(:options) { { 'source' => 'message', 'ecs_compatibility' => 'disabled' } }
   let(:message) { "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36" }
 
   let(:event) { LogStash::Event.new('message' => message) }
@@ -371,6 +371,7 @@ describe LogStash::Filters::UserAgent do
         useragent {
           source => "message"
           target => "user_agent"
+          ecs_compatibility => "disabled"
         }
       }
     CONFIG
@@ -480,6 +481,7 @@ describe LogStash::Filters::UserAgent do
         useragent {
           source => "message"
           target => "message"
+          ecs_compatibility => "disabled"
         }
       }
     CONFIG
