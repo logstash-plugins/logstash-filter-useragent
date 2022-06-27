@@ -145,6 +145,7 @@ public class ParserTest {
   void testUserAgentFromYaml(String filename) {
     InputStream yamlStream = this.getClass().getResourceAsStream(TEST_RESOURCE_PATH + filename);
 
+    final Yaml yaml = new Yaml();
     @SuppressWarnings("unchecked")
     Map<String, List<Map<String,String>>> entries = (Map<String, List<Map<String,String>>>)yaml.load(yamlStream);
 
