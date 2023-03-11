@@ -17,9 +17,6 @@
  */
 package org.logstash.uaparser;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import org.junit.Before;
 import org.junit.Test;
 

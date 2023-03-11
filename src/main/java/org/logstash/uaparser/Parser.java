@@ -21,6 +21,8 @@ package org.logstash.uaparser;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -30,7 +32,10 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
  */
 public class Parser {
 
+    public static final Integer MAX_CODE_POINT_SIZE = 10 * 1024 * 1024;
+
     private static final String REGEX_YAML_PATH = "/regexes.yaml";
+
     private UserAgentParser uaParser;
     private OSParser osParser;
     private DeviceParser deviceParser;
@@ -63,7 +68,10 @@ public class Parser {
 
     @SuppressWarnings("unchecked")
     private void initialize(InputStream regexYaml) {
-        final Yaml yaml = new Yaml(new SafeConstructor());
+        LoaderOptions loaderOptions = new LoaderOptions();
+        loaderOptions.setCodePointLimit(MAX_CODE_POINT_SIZE);
+        final Yaml yaml = new Yaml(loaderOptions);
+
         final Map<String, List<Map<String, String>>> regexConfig =
             (Map<String, List<Map<String, String>>>) yaml.load(regexYaml);
         List<Map<String, String>> uaParserConfigs = regexConfig.get("user_agent_parsers");
