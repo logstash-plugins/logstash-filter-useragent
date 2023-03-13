@@ -1,5 +1,5 @@
 ## 3.3.4
-  - Upgrade `snakeyaml` dependency [#83](https://github.com/logstash-plugins/logstash-filter-useragent/pull/83)
+  - Upgrade `snakeyaml` dependency [#84](https://github.com/logstash-plugins/logstash-filter-useragent/pull/84)
 
 ## 3.3.3
   - Docs: mention added fields in 3.3 with a note [#78](https://github.com/logstash-plugins/logstash-filter-useragent/pull/78)
