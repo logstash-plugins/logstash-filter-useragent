@@ -31,6 +31,7 @@ import java.util.concurrent.Future;
 import org.hamcrest.MatcherAssert;
 import org.junit.Before;
 import org.junit.Test;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
@@ -42,8 +43,19 @@ public class ParserTest {
 
   private static final String TEST_RESOURCE_PATH = "/";
 
-  private final Yaml yaml = new Yaml();
+  private final LoaderOptions loaderOptions = new LoaderOptions();
+
+  private final Yaml yaml;
   Parser parser;
+
+  public static final Integer MAX_CODE_POINT_SIZE = 5 * 1024 * 1024; // 5M
+
+  {
+    // The test https://raw.githubusercontent.com/ua-parser/uap-core/v0.12.0/tests/test_device.yaml
+    // file is more than 3M
+    loaderOptions.setCodePointLimit(MAX_CODE_POINT_SIZE);
+    yaml = new Yaml(loaderOptions);
+  }
 
   @Before
   public void initParser() {
@@ -109,7 +121,7 @@ public class ParserTest {
       final Future<?>[] futures = new Future[threads];
       for (int i = 0; i < threads; ++i) {
         // NOTE: same as testParseUserAgent but we need to avoid shared this.yaml (instance) state
-        futures[i] = exec.submit(() -> testUserAgentFromYaml("test_ua.yaml", new Yaml()));
+        futures[i] = exec.submit(() -> testUserAgentFromYaml("test_ua.yaml", new Yaml(loaderOptions)));
       }
       for (int i = 0; i < 3; ++i) {
         futures[i].get();
@@ -186,8 +198,8 @@ public class ParserTest {
     }
   }
 
-  void testDeviceFromYaml(String filename) {
-    InputStream yamlStream = this.getClass().getResourceAsStream(TEST_RESOURCE_PATH + filename);
+  void testDeviceFromYaml(String fileName) {
+    InputStream yamlStream = this.getClass().getResourceAsStream(TEST_RESOURCE_PATH + fileName);
 
     @SuppressWarnings("unchecked")
     Map<String, List<Map<String,String>>> entries = (Map<String, List<Map<String,String>>>)yaml.load(yamlStream);

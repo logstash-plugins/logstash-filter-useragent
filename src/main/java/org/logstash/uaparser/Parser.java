@@ -21,8 +21,8 @@ package org.logstash.uaparser;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Java implementation of <a href="https://github.com/tobie/ua-parser">UA Parser</a>
@@ -31,6 +31,7 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 public class Parser {
 
     private static final String REGEX_YAML_PATH = "/regexes.yaml";
+
     private UserAgentParser uaParser;
     private OSParser osParser;
     private DeviceParser deviceParser;
@@ -63,7 +64,8 @@ public class Parser {
 
     @SuppressWarnings("unchecked")
     private void initialize(InputStream regexYaml) {
-        final Yaml yaml = new Yaml(new SafeConstructor());
+        final Yaml yaml = new Yaml();
+
         final Map<String, List<Map<String, String>>> regexConfig =
             (Map<String, List<Map<String, String>>>) yaml.load(regexYaml);
         List<Map<String, String>> uaParserConfigs = regexConfig.get("user_agent_parsers");
