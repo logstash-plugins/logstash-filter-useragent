@@ -33,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 /**
  * Tests parsing results match the expected results in the test_resources yamls
@@ -45,11 +44,16 @@ public class ParserTest {
   private static final String TEST_RESOURCE_PATH = "/";
 
   private final LoaderOptions loaderOptions = new LoaderOptions();
+
   private final Yaml yaml;
   Parser parser;
 
+  public static final Integer MAX_CODE_POINT_SIZE = 5 * 1024 * 1024; // 5M
+
   {
-    loaderOptions.setCodePointLimit(Parser.MAX_CODE_POINT_SIZE);
+    // The test https://raw.githubusercontent.com/ua-parser/uap-core/v0.12.0/tests/test_device.yaml
+    // file is more than 3M
+    loaderOptions.setCodePointLimit(MAX_CODE_POINT_SIZE);
     yaml = new Yaml(loaderOptions);
   }
 
@@ -117,7 +121,7 @@ public class ParserTest {
       final Future<?>[] futures = new Future[threads];
       for (int i = 0; i < threads; ++i) {
         // NOTE: same as testParseUserAgent but we need to avoid shared this.yaml (instance) state
-        futures[i] = exec.submit(() -> testUserAgentFromYaml("test_ua.yaml", new Yaml(new SafeConstructor(loaderOptions))));
+        futures[i] = exec.submit(() -> testUserAgentFromYaml("test_ua.yaml", new Yaml(loaderOptions)));
       }
       for (int i = 0; i < 3; ++i) {
         futures[i].get();
