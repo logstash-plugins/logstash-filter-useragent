@@ -354,7 +354,7 @@ describe LogStash::Filters::UserAgent do
         }
       CONFIG
 
-      sample "foo" => "bar" do
+      sample({"foo" => "bar"}) do
         expect( subject.to_hash ).to_not include("ua")
       end
 
