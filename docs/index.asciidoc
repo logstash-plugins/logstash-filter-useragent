@@ -182,6 +182,7 @@ You can find the latest version of this here:
   * This is a required setting.
   * Value type is <<string,string>>
   * There is no default value for this setting.
+  * The value of this setting shouldn't be the same as the value of <<plugins-{type}s-{plugin}-target>>.
 
 The field containing the user agent string. If this field is an
 array, only the first value will be used.
