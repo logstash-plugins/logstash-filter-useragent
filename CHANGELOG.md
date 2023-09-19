@@ -1,3 +1,6 @@
+## 3.3.5
+  - Upgrade `snakeyaml` dependency [#89](https://github.com/logstash-plugins/logstash-filter-useragent/pull/89)
+
 ## 3.3.4
   - Upgrade `snakeyaml` dependency [#84](https://github.com/logstash-plugins/logstash-filter-useragent/pull/84)
 
