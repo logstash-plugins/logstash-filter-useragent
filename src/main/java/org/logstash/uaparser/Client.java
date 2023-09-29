@@ -28,9 +28,9 @@ public final class Client {
 
     public final OS os;
 
-    public final String device;
+    public final Device device;
 
-    public Client(final UserAgent userAgent, final OS os, final String device) {
+    public Client(final UserAgent userAgent, final OS os, final Device device) {
         this.userAgent = userAgent;
         this.os = os;
         this.device = device;

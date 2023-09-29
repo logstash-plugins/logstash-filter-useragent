@@ -48,17 +48,17 @@ final class DeviceParser {
         this.patterns = patterns;
     }
 
-    public String parse(String agentString) {
+    public Device parse(String agentString) {
         if (agentString == null) {
             return null;
         }
-        String device = null;
+        Device device = null;
         for (final DeviceParser.DevicePattern p : this.patterns) {
             if ((device = p.match(agentString)) != null) {
                 break;
             }
         }
-        if (device == null) device = "Other";
+        if (device == null) device = new Device("Other", null, null);
         return device;
     }
 
@@ -69,7 +69,7 @@ final class DeviceParser {
         }
         Pattern pattern = "i".equals(configMap.get("regex_flag")) // no other flags used (by now)
             ? Pattern.compile(regex, Pattern.CASE_INSENSITIVE) : Pattern.compile(regex);
-        return new DeviceParser.DevicePattern(pattern, configMap.get("device_replacement"));
+        return new DeviceParser.DevicePattern(pattern, configMap.get("device_replacement"), configMap.get("brand_replacement"), configMap.get("model_replacement"));
     }
 
     private static final class DevicePattern {
@@ -79,37 +79,75 @@ final class DeviceParser {
         private final Matcher matcher;
 
         private final String deviceReplacement;
+        private final String brandReplacement;
+        private final String modelReplacement;
 
-        DevicePattern(Pattern pattern, String deviceReplacement) {
+        DevicePattern(Pattern pattern, String deviceReplacement, String brandReplacement, String modelReplacement) {
             this.matcher = pattern.matcher("");
             this.deviceReplacement = deviceReplacement;
+            this.brandReplacement = brandReplacement;
+            this.modelReplacement = modelReplacement;
         }
 
-        public synchronized String match(final CharSequence agentString) {
+        public synchronized Device match(final CharSequence agentString) {
             this.matcher.reset(agentString);
             if (!this.matcher.find()) {
                 return null;
             }
-            String device = null;
+            String family = null;
+            String brand = null;
+            String model = null;
             if (this.deviceReplacement != null) {
                 if (this.deviceReplacement.contains("$")) {
-                    device = this.deviceReplacement;
+                    family = this.deviceReplacement;
                     for (String substitution : DevicePattern
                         .getSubstitutions(this.deviceReplacement)) {
                         int i = Integer.parseInt(substitution.substring(1));
                         final String replacement = this.matcher.groupCount() >= i &&
                             this.matcher.group(i) != null
                             ? Matcher.quoteReplacement(this.matcher.group(i)) : "";
-                        device = device.replaceFirst('\\' + substitution, replacement);
+                        family = family.replaceFirst('\\' + substitution, replacement);
                     }
-                    device = device.trim();
+                    family = family.trim();
                 } else {
-                    device = this.deviceReplacement;
+                    family = this.deviceReplacement;
                 }
             } else if (this.matcher.groupCount() >= 1) {
-                device = this.matcher.group(1);
+                family = this.matcher.group(1);
             }
-            return device;
+            if (this.brandReplacement != null) {
+                if (this.brandReplacement.contains("$")) {
+                    brand = this.brandReplacement;
+                    for (String substitution : DevicePattern
+                            .getSubstitutions(this.brandReplacement)) {
+                        int i = Integer.parseInt(substitution.substring(1));
+                        final String replacement = this.matcher.groupCount() >= i &&
+                                this.matcher.group(i) != null
+                                ? Matcher.quoteReplacement(this.matcher.group(i)) : "";
+                        brand = brand.replaceFirst('\\' + substitution, replacement);
+                    }
+                    brand = brand.trim();
+                } else {
+                    brand = this.brandReplacement;
+                }
+            }
+            if (this.modelReplacement != null) {
+                if (this.modelReplacement.contains("$")) {
+                    model = this.modelReplacement;
+                    for (String substitution : DevicePattern
+                            .getSubstitutions(this.modelReplacement)) {
+                        int i = Integer.parseInt(substitution.substring(1));
+                        final String replacement = this.matcher.groupCount() >= i &&
+                                this.matcher.group(i) != null
+                                ? Matcher.quoteReplacement(this.matcher.group(i)) : "";
+                        model = model.replaceFirst('\\' + substitution, replacement);
+                    }
+                    model = model.trim();
+                } else {
+                    model = this.modelReplacement;
+                }
+            }
+            return new Device(family, brand, model);
         }
 
         private static Iterable<String> getSubstitutions(String deviceReplacement) {
