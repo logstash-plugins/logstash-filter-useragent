@@ -24,17 +24,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING
  * specific language governing permissions and limitations
  * under the License.
  */
-apply plugin: "java"
-apply plugin: 'maven-publish'
-apply plugin: "distribution"
-apply plugin: "idea"
-
-group "org.logstash.filters"
-version Files.readAllLines(Paths.get("version")).first()
-
-sourceCompatibility = JavaVersion.VERSION_1_8
-
-buildscript {
+ buildscript {
   repositories {
     mavenCentral()
     gradlePluginPortal()
@@ -42,9 +32,27 @@ buildscript {
 
   dependencies {
     classpath group: 'org.jruby', name: 'jruby-complete', version: "9.2.11.0"
-    classpath 'gradle.plugin.com.github.jengelman.gradle.plugins:shadow:7.0.0'
     classpath 'de.undercouch:gradle-download-task:4.0.4'
   }
+}
+
+// apply plugin: 'com.github.johnrengelman.shadow'
+plugins {
+  id 'com.github.johnrengelman.shadow' version '8.1.1'
+
+  id 'java'
+  id 'maven-publish'
+  id 'distribution'
+  id 'idea'
+}
+
+
+
+group "org.logstash.filters"
+version Files.readAllLines(Paths.get("version")).first()
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_1_8
 }
 
 repositories {
@@ -115,11 +123,9 @@ test {
   }
 }
 
-apply plugin: 'com.github.johnrengelman.shadow'
-
 shadowJar {
   dependsOn 'verifyYaml'
-  archiveClassifier = null
+  archiveClassifier.set('')
 }
 
 task vendor(dependsOn: shadowJar) {
