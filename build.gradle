@@ -79,6 +79,11 @@ task patchYaml(type: Copy, dependsOn: [downloadYaml]) {
   }
 }
 
+// testJava tasks uses the patched yaml, so make explicit the dependency.
+tasks.getByPath(":compileTestJava").configure {
+  dependsOn patchYaml
+}
+
 task downloadTestYaml(type: Download, overwrite: false) {
   src([
     yamlResourceRoot + '/test_resources/additional_os_tests.yaml',
