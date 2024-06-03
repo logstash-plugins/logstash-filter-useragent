@@ -54,7 +54,7 @@ public class Parser {
         return this.uaParser.parse(agentString);
     }
 
-    public String parseDevice(String agentString) {
+    public Device parseDevice(String agentString) {
         return this.deviceParser.parse(agentString);
     }
 
