@@ -67,6 +67,12 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     @device_name_field = ecs_select[disabled: "[#{@prefix}device]", v1: '[device][name]']
     @device_name_field = "#{target}#{@device_name_field}"
+    @device_family_field = ecs_select[disabled: "[#{@prefix}device]", v1: '[device][family]']
+    @device_family_field = "#{target}#{@device_family_field}"
+    @device_brand_field = ecs_select[disabled: "[#{@prefix}device]", v1: '[device][brand]']
+    @device_brand_field = "#{target}#{@device_brand_field}"
+    @device_model_field = ecs_select[disabled: "[#{@prefix}device]", v1: '[device][model]']
+    @device_model_field = "#{target}#{@device_model_field}"
 
     @version_field = ecs_select[disabled: "[#{@prefix}version]", v1: '[version]']
     @version_field = "#{target}#{@version_field}"
@@ -138,8 +144,14 @@ class LogStash::Filters::UserAgent < LogStash::Filters::Base
 
     ua = ua_data.userAgent
     event.set(@name_field, duped_string(ua.family))
-    event.set(@device_name_field, duped_string(ua_data.device)) if ua_data.device
 
+    dev = ua_data.device
+    if dev
+      event.set(@device_name_field, duped_string(ua_data.device)) if dev.family
+      event.set(@device_family_field, duped_string(ua_data.device)) if dev.family
+      event.set(@device_brand_field, duped_string(ua_data.device)) if dev.brand
+      event.set(@device_model_field, duped_string(ua_data.device)) if dev.model
+    end
     event.set(@major_field, duped_string(ua.major)) if ua.major
     event.set(@minor_field, duped_string(ua.minor)) if ua.minor
     event.set(@patch_field, duped_string(ua.patch)) if ua.patch
